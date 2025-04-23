@@ -117,16 +117,29 @@ We prioritize your privacy:
 
 ## Development
 
+For detailed information about the project's structure, components, and how they interact, please see the [ARCHITECTURE.md](ARCHITECTURE.md) document. This includes comprehensive documentation about:
+- Component roles and responsibilities
+- Communication flow between components
+- State management
+- Data flow
+- Future considerations
+
 ### Project Structure
 ```
 yoto-tools/
 ├── icons/              # Extension icons (16, 32, 48, 128px)
+│   ├── 16.png         # Small icon for extension menu
+│   ├── 32.png         # Medium icon for extension menu
+│   ├── 48.png         # Large icon for extension menu
+│   └── 128.png        # Extra large icon for Chrome Web Store
 ├── popup.html         # Extension popup interface
 ├── popup.js          # Popup functionality and state synchronization
 ├── content.js        # Content script for page interaction and state management
 ├── background.js     # Service worker for download handling
 ├── manifest.json     # Extension configuration
-└── README.md         # Documentation
+├── ARCHITECTURE.md   # Detailed technical documentation and component interactions
+├── LICENSE          # MIT License file
+└── README.md         # User documentation and setup guide
 ```
 
 ### Technical Details

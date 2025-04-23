@@ -118,4 +118,5 @@ The extension is built using standard Chrome Extension APIs (Manifest V3) and fo
 - **Error Handling**: Robustness could be improved with more specific error catching and user feedback.
 - **State Management**: For more complex features, a more formal state management approach might be needed.
 - **Large File Downloads**: Handling potential issues with very large files or numerous files might require adjustments (e.g., queuing, retries).
-- **API Changes**: The extension relies on the structure of Yoto web pages (DOM and `__NEXT_DATA__`). Changes to the Yoto site could break the extension. 
+- **API Changes**: The extension relies on the structure of Yoto web pages (DOM and `__NEXT_DATA__`). Changes to the Yoto site could break the extension.
+- **Client-Side File Conversion**: Implement browser-based file conversion using WebAssembly-compiled FFmpeg to allow users to convert downloaded .mp4 files to .mp3 format directly within the extension, eliminating the need for external conversion tools. 
