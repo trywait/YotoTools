@@ -31,10 +31,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       statusColor: document.querySelector('.yoto-tools-status')?.style.color || 'var(--text-secondary)',
       inProgress: progressContainer?.style.display === 'flex',
       progress: progressFill ? parseInt(progressFill.style.width) || 0 : 0,
-      error: null
+      error: null,
+      buttonStates: getCurrentButtonStates()
     };
     
     sendResponse(state);
+    return true;
+  } else if (message.action === 'getButtonStates') {
+    sendResponse(getCurrentButtonStates());
     return true;
   }
 });
@@ -526,7 +530,7 @@ function injectDownloadButtons() {
   // Add Card Details button
   const detailsButton = document.createElement('button');
   detailsButton.className = 'yoto-tools-button secondary-button';
-  detailsButton.textContent = 'Save Card Details';
+  detailsButton.innerHTML = `${getFileTextIcon()} Save Card Details`;
   detailsButton.style.cssText = `
     background-color: transparent;
     color: #1a73e8;
@@ -536,6 +540,11 @@ function injectDownloadButtons() {
     cursor: pointer;
     font-size: 14px;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 140px;
+    justify-content: center;
   `;
   detailsButton.onmouseover = () => {
     detailsButton.style.backgroundColor = '#f1f5fe';
@@ -543,12 +552,21 @@ function injectDownloadButtons() {
   detailsButton.onmouseout = () => {
     detailsButton.style.backgroundColor = 'transparent';
   };
-  detailsButton.onclick = () => downloadCardDetails();
+  detailsButton.onclick = async () => {
+    try {
+      const result = await downloadCardDetails();
+      if (result.success) {
+        setButtonSuccess(detailsButton, 'Card Details Saved');
+      }
+    } catch (error) {
+      console.error('Error downloading card details:', error);
+    }
+  };
 
   // Add Card Artwork button
   const artworkButton = document.createElement('button');
   artworkButton.className = 'yoto-tools-button secondary-button';
-  artworkButton.textContent = 'Save Card Artwork';
+  artworkButton.innerHTML = `${getPhotoIcon()} Save Card Artwork`;
   artworkButton.style.cssText = detailsButton.style.cssText; // Use same styling
   artworkButton.onmouseover = () => {
     artworkButton.style.backgroundColor = '#f1f5fe';
@@ -556,7 +574,14 @@ function injectDownloadButtons() {
   artworkButton.onmouseout = () => {
     artworkButton.style.backgroundColor = 'transparent';
   };
-  artworkButton.onclick = () => downloadCoverArt();
+  artworkButton.onclick = async () => {
+    try {
+      await downloadCoverArt();
+      setButtonSuccess(artworkButton, 'Artwork Saved');
+    } catch (error) {
+      console.error('Error downloading cover art:', error);
+    }
+  };
 
   // Modified bulk download click handler
   completeBackupButton.onclick = async () => {
@@ -580,7 +605,8 @@ function injectDownloadButtons() {
           
           if (progress === 100) {
             statusText.textContent = 'Backup Complete!';
-            statusText.style.color = '#34C759'; // Apple's system green color
+            statusText.style.color = '#34C759';
+            setButtonSuccess(completeBackupButton, 'Complete Backup');
             setTimeout(() => {
               progressContainer.style.display = 'none';
               window.removeEventListener('message', messageHandler);
@@ -588,7 +614,7 @@ function injectDownloadButtons() {
           }
         } else if (message.type === 'downloadError') {
           statusText.textContent = `Error: ${message.error}`;
-          statusText.style.color = '#FF3B30'; // Apple's system red color
+          statusText.style.color = '#FF3B30';
         }
       };
 
@@ -631,7 +657,6 @@ function injectDownloadButtons() {
     rows.forEach((row, index) => {
       const cells = row.querySelectorAll('td');
       if (cells.length >= 2) {
-        // Create container for buttons
         const buttonContainer = document.createElement('div');
         buttonContainer.className = 'yoto-tools-button-container';
         buttonContainer.style.cssText = `
@@ -640,10 +665,10 @@ function injectDownloadButtons() {
           margin-left: 10px;
         `;
 
-        // Add Save Audio button
+        // Add Save Audio button with icon
         const audioButton = document.createElement('button');
         audioButton.className = 'yoto-tools-button track-button';
-        audioButton.textContent = 'Save Audio';
+        audioButton.innerHTML = `${getAudioIcon()} Save Audio`;
         audioButton.style.cssText = `
           background-color: transparent;
           color: #5f6368;
@@ -653,6 +678,11 @@ function injectDownloadButtons() {
           cursor: pointer;
           font-size: 12px;
           transition: all 0.2s;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          min-width: 100px;
+          justify-content: center;
         `;
         audioButton.onmouseover = () => {
           audioButton.style.backgroundColor = '#f8f9fa';
@@ -663,18 +693,23 @@ function injectDownloadButtons() {
         audioButton.onclick = async () => {
           const trackData = cardData.content.chapters.flatMap(c => c.tracks)[index];
           if (trackData?.trackUrl) {
-            await chrome.runtime.sendMessage({
-              type: 'downloadFile',
-              url: trackData.trackUrl,
-              filename: `${sanitizeFileName(cardData.title)}/${sanitizeFileName(`Track ${index + 1} - ${trackData.title}.mp3`)}`
-            });
+            try {
+              await chrome.runtime.sendMessage({
+                type: 'downloadFile',
+                url: trackData.trackUrl,
+                filename: `${sanitizeFileName(cardData.title)}/${sanitizeFileName(`Track ${index + 1} - ${trackData.title}.mp3`)}`
+              });
+              setButtonSuccess(audioButton, 'Audio Saved');
+            } catch (error) {
+              console.error('Error downloading audio:', error);
+            }
           }
         };
 
-        // Add Save Icon button
+        // Add Save Icon button with icon
         const iconButton = document.createElement('button');
         iconButton.className = 'yoto-tools-button track-button';
-        iconButton.textContent = 'Save Icon';
+        iconButton.innerHTML = `${getPhotoIcon()} Save Icon`;
         iconButton.style.cssText = audioButton.style.cssText; // Use same styling
         iconButton.onmouseover = () => {
           iconButton.style.backgroundColor = '#f8f9fa';
@@ -683,14 +718,12 @@ function injectDownloadButtons() {
           iconButton.style.backgroundColor = 'transparent';
         };
         iconButton.onclick = async () => {
-          // Find the correct chapter and track by counting through all tracks
           let trackCount = 0;
           let targetChapter = null;
           let targetTrack = null;
           
           for (const chapter of cardData.content.chapters) {
             if (trackCount + chapter.tracks.length > index) {
-              // Found the right chapter
               targetChapter = chapter;
               targetTrack = chapter.tracks[index - trackCount];
               break;
@@ -699,11 +732,16 @@ function injectDownloadButtons() {
           }
 
           if (targetChapter?.display?.icon16x16 && targetTrack) {
-            await chrome.runtime.sendMessage({
-              type: 'downloadFile',
-              url: targetChapter.display.icon16x16,
-              filename: `${sanitizeFileName(cardData.title)}/${sanitizeFileName(`Image ${index + 1} - ${targetTrack.title}.jpg`)}`
-            });
+            try {
+              await chrome.runtime.sendMessage({
+                type: 'downloadFile',
+                url: targetChapter.display.icon16x16,
+                filename: `${sanitizeFileName(cardData.title)}/${sanitizeFileName(`Image ${index + 1} - ${targetTrack.title}.jpg`)}`
+              });
+              setButtonSuccess(iconButton, 'Icon Saved');
+            } catch (error) {
+              console.error('Error downloading icon:', error);
+            }
           }
         };
 
@@ -713,6 +751,77 @@ function injectDownloadButtons() {
       }
     });
   }
+}
+
+// Add these helper functions near the top of the file
+function getAudioIcon() {
+  return `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+      <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
+    </svg>
+  `;
+}
+
+function getPhotoIcon() {
+  return `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+      <circle cx="8.5" cy="8.5" r="1.5"/>
+      <path d="M20.4 14.5L16 10 4 20"/>
+    </svg>
+  `;
+}
+
+function getCheckIcon() {
+  return `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+  `;
+}
+
+function getFileTextIcon() {
+  return `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+      <line x1="16" y1="13" x2="8" y2="13"/>
+      <line x1="16" y1="17" x2="8" y2="17"/>
+      <line x1="10" y1="9" x2="8" y2="9"/>
+    </svg>
+  `;
+}
+
+function setButtonSuccess(button, originalText) {
+  button.innerHTML = `${getCheckIcon()} ${originalText}`;
+  button.style.backgroundColor = '#e8f5e9';
+  button.style.borderColor = '#2e7d32';
+  button.style.color = '#2e7d32';
+  button.disabled = true;
+
+  // Send message to popup about state change
+  let actionType = '';
+  if (button === completeBackupButton) actionType = 'bulkDownload';
+  else if (button === detailsButton) actionType = 'cardDetails';
+  else if (button === artworkButton) actionType = 'cardArtwork';
+  
+  if (actionType) {
+    chrome.runtime.sendMessage({
+      type: 'buttonStateChange',
+      action: actionType,
+      state: 'success'
+    });
+  }
+}
+
+// Add function to get current button states
+function getCurrentButtonStates() {
+  return {
+    bulkDownload: completeBackupButton?.disabled || false,
+    cardDetails: detailsButton?.disabled || false,
+    cardArtwork: artworkButton?.disabled || false
+  };
 }
 
 // Automatically inject buttons when the content script loads
