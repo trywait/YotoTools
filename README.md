@@ -46,17 +46,18 @@ Before using this extension, you'll need:
 
 ## Installation
 
-### From Chrome Web Store
-1. Visit the Chrome Web Store (link coming soon)
-2. Click "Add to Chrome"
-3. Confirm the installation when prompted
-
 ### Manual Installation (Developer Mode)
-1. Download or clone this repository
+1. Download or clone this repository (by pasting this into your terminal):
+   ```bash
+   git clone https://github.com/trywait/YotoTools.git
+   ```
 2. Open Chrome and go to `chrome://extensions/`
 3. Enable "Developer mode" in the top-right corner
 4. Click "Load unpacked"
 5. Select the directory containing the extension files
+6. Once loaded, click the puzzle piece icon (Extensions) in Chrome's toolbar
+7. Find "Yoto Tools" in the dropdown list
+8. Click the pin icon next to it to keep it visible in your toolbar
 
 ## Usage
 
