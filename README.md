@@ -16,11 +16,9 @@ This tool is intended **ONLY** for:
 ## Features
 
 - 🔒 **Personal Backup**: Create backups of your purchased Yoto card content
-- 📚 **Content Archive**: Organize your owned content for offline access
-- 🖼️ **Media Preservation**: Save cover art and details of your purchased cards
-- 🎨 **Modern UI**: Clean and simple design with synchronized state and progress display
+- 📚 **Content Archive**: Save and organize your owned content for offline access
+- 🎨 **Simple UI**: Clean and simple design with synchronized state and progress display
 - 🔐 **Privacy-Focused**: Works entirely client-side with minimal permissions
-- 🔄 **State Persistence**: Maintains accurate download state between popup reopens
 
 ## Legal Usage
 
@@ -78,17 +76,14 @@ Before using this extension, you'll need:
 4. Wait for the page to fully load
 
 ### Step 3: Use the Extension
-1. Once on the card page, you'll see download buttons directly on the screen:
+1. Once on the card page (after it redirects), you'll see download buttons directly on the screen:
+   *Note: Do not refresh this page as it will lead to a 404 error. If this happens, simply return to Step 1.4 and re-enter the original `yoto.io` URL.*
    - **Save Complete Backup**: Downloads all card content into an organized folder
    - **Save Card Details**: Saves a text file with the card's information
    - **Save Card Artwork**: Downloads the card's cover art
    - **Save Audio / Save Audio**: Downloads that specific track audio or icon
    
-2. You can also click the Yoto Tools extension icon in your Chrome toolbar for quick actions:
-   - **View Media Links**: Adds a section to the page showing clickable links for all content
-   - **Complete Backup**: Same as the on-page button, creates a complete backup
-   - **Save Card Artwork**: Downloads the card's artwork
-   - **Save Card Information**: Saves the card details as a text file
+2. You can also click the Yoto Tools extension icon in your Chrome toolbar for quick actions.
 
 Both methods will save your files in the same organized way, so you can use whichever is more convenient.
 
@@ -96,11 +91,13 @@ Both methods will save your files in the same organized way, so you can use whic
 1. By default, files are saved to your computer's Downloads folder
 2. A new folder will be created named after your card (e.g., "Jack and the Beanstalk")
 3. Inside the folder, you'll find:
-   - Audio files named: `Track 1 - [Title].mp3`, `Track 2 - [Title].mp3`, etc.
+   - Audio files named: `Track 1 - [Title].mp4`, `Track 2 - [Title].mp4`, etc.
    - Chapter/Track images named: `Image 1 - [Track Title].jpg`, `Image 2 - [Track Title].jpg`, etc. (if available)
    - Cover artwork named: `Cover Art - [Card Title].jpg`
    - Card information saved as: `[Card Title] - Details.txt`
 4. All files are automatically organized and numbered in the order they appear on the card
+
+*Note: Audio files are downloaded in .mp4 format. For better compatibility with media players and devices, you may want to convert them to .mp3 format. We recommend using [FFmpeg](https://ffmpeg.org/) ([GitHub](https://github.com/FFmpeg/FFmpeg)) or another audio conversion tool of your choice to process the files.*
 
 ### Important Notes
 - Always ensure you're backing up cards you own
