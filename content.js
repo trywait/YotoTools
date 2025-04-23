@@ -683,12 +683,26 @@ function injectDownloadButtons() {
           iconButton.style.backgroundColor = 'transparent';
         };
         iconButton.onclick = async () => {
-          const chapterData = cardData.content.chapters.find(c => c.tracks[index]);
-          if (chapterData?.display?.icon16x16) {
+          // Find the correct chapter and track by counting through all tracks
+          let trackCount = 0;
+          let targetChapter = null;
+          let targetTrack = null;
+          
+          for (const chapter of cardData.content.chapters) {
+            if (trackCount + chapter.tracks.length > index) {
+              // Found the right chapter
+              targetChapter = chapter;
+              targetTrack = chapter.tracks[index - trackCount];
+              break;
+            }
+            trackCount += chapter.tracks.length;
+          }
+
+          if (targetChapter?.display?.icon16x16 && targetTrack) {
             await chrome.runtime.sendMessage({
               type: 'downloadFile',
-              url: chapterData.display.icon16x16,
-              filename: `${sanitizeFileName(cardData.title)}/${sanitizeFileName(`Image ${index + 1} - ${chapterData.tracks[index].title}.jpg`)}`
+              url: targetChapter.display.icon16x16,
+              filename: `${sanitizeFileName(cardData.title)}/${sanitizeFileName(`Image ${index + 1} - ${targetTrack.title}.jpg`)}`
             });
           }
         };
