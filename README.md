@@ -18,8 +18,9 @@ This tool is intended **ONLY** for:
 - 🔒 **Personal Backup**: Create backups of your purchased Yoto card content
 - 📚 **Content Archive**: Organize your owned content for offline access
 - 🖼️ **Media Preservation**: Save cover art and details of your purchased cards
-- 🎨 **Modern UI**: Clean, Apple-inspired design with smooth animations
+- 🎨 **Modern UI**: Clean and simple design with synchronized state and progress display
 - 🔐 **Privacy-Focused**: Works entirely client-side with minimal permissions
+- 🔄 **State Persistence**: Maintains accurate download state between popup reopens
 
 ## Legal Usage
 
@@ -57,7 +58,7 @@ Before using this extension, you'll need:
 5. Select the directory containing the extension files
 6. Once loaded, click the puzzle piece icon (Extensions) in Chrome's toolbar
 7. Find "Yoto Tools" in the dropdown list
-8. Click the pin icon next to it to keep it visible in your toolbar
+8. Click the pin icon next to it to keep it visible in your toolbar (optional)
 
 ## Usage
 
@@ -77,12 +78,19 @@ Before using this extension, you'll need:
 4. Wait for the page to fully load
 
 ### Step 3: Use the Extension
-1. Click the Yoto Tools extension icon in your Chrome toolbar
-2. You'll see four options:
-   - **View Media Links**: Adds a section to the top of the current web page displaying clickable links for all available content (useful for quick checks or saving individual files via right-click -> "Save Link As...")
-   - **Complete Backup**: Creates a complete backup of all card content in a folder
-   - **Save Card Artwork**: Saves the card's main artwork to a folder
-   - **Save Card Information**: Saves card details (title, author, description, track list) as a text file in a folder
+1. Once on the card page, you'll see download buttons directly on the screen:
+   - **Save Complete Backup**: Downloads all card content into an organized folder
+   - **Save Card Details**: Saves a text file with the card's information
+   - **Save Card Artwork**: Downloads the card's cover art
+   - **Save Audio / Save Audio**: Downloads that specific track audio or icon
+   
+2. You can also click the Yoto Tools extension icon in your Chrome toolbar for quick actions:
+   - **View Media Links**: Adds a section to the page showing clickable links for all content
+   - **Complete Backup**: Same as the on-page button, creates a complete backup
+   - **Save Card Artwork**: Downloads the card's artwork
+   - **Save Card Information**: Saves the card details as a text file
+
+Both methods will save your files in the same organized way, so you can use whichever is more convenient.
 
 ### Step 4: Locate Your Backups
 1. By default, files are saved to your computer's Downloads folder
@@ -118,12 +126,26 @@ We prioritize your privacy:
 yoto-tools/
 ├── icons/              # Extension icons (16, 32, 48, 128px)
 ├── popup.html         # Extension popup interface
-├── popup.js          # Popup functionality and UI interactions
-├── content.js        # Content script for interacting with Yoto pages
+├── popup.js          # Popup functionality and state synchronization
+├── content.js        # Content script for page interaction and state management
 ├── background.js     # Service worker for download handling
 ├── manifest.json     # Extension configuration
 └── README.md         # Documentation
 ```
+
+### Technical Details
+
+#### State Management
+- The content script (`content.js`) maintains the source of truth for download state
+- The popup queries the current state when opened, ensuring accurate display
+- Progress and error states are synchronized between the page and popup
+- No external storage needed - state is maintained in the page DOM
+
+#### User Interface
+- Clean, modern design with intuitive controls
+- Real-time progress updates in both popup and page
+- Consistent state display across interface elements
+- Smooth transitions and clear status indicators
 
 ### Building from Source
 1. Clone the repository
@@ -163,4 +185,4 @@ If you encounter any issues or have questions:
 
 ---
 
-Made with ❤️ for the Yoto community 
+Made with ❤️ for the Yoto community for personal use

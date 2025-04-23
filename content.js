@@ -19,6 +19,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.action === 'downloadCardDetails') {
     downloadCardDetails().then(sendResponse);
     return true;
+  } else if (message.action === 'getCurrentState') {
+    // Get current state from the page
+    const statusText = document.querySelector('.yoto-tools-status')?.textContent || 'Ready to backup your card content';
+    const progressContainer = document.querySelector('.yoto-tools-progress');
+    const progressFill = progressContainer?.querySelector('div');
+    const progressText = progressContainer?.querySelector('div:last-child');
+    
+    const state = {
+      status: statusText,
+      statusColor: document.querySelector('.yoto-tools-status')?.style.color || 'var(--text-secondary)',
+      inProgress: progressContainer?.style.display === 'flex',
+      progress: progressFill ? parseInt(progressFill.style.width) || 0 : 0,
+      error: null
+    };
+    
+    sendResponse(state);
+    return true;
   }
 });
 
@@ -335,6 +352,8 @@ ${trackList}`;
     // Function to update progress
     const updateProgress = (progress) => {
       window.postMessage({ type: 'downloadProgress', progress }, '*');
+      // Forward progress to background script
+      chrome.runtime.sendMessage({ type: 'downloadProgress', progress });
     };
 
     // Download files one by one
@@ -361,10 +380,10 @@ ${trackList}`;
         completed++;
       } catch (error) {
         console.error(`Error downloading ${item.filename}:`, error);
-        window.postMessage({ 
-          type: 'downloadError', 
-          error: `Failed to download ${item.filename}` 
-        }, '*');
+        const errorMessage = { type: 'downloadError', error: `Failed to download ${item.filename}` };
+        window.postMessage(errorMessage, '*');
+        // Forward error to background script
+        chrome.runtime.sendMessage(errorMessage);
       }
     }
 
@@ -372,11 +391,11 @@ ${trackList}`;
     updateProgress(100);
 
   } catch (error) {
-    console.error('Error in bulk download:', error);
-    window.postMessage({ 
-      type: 'downloadError', 
-      error: 'Bulk download failed' 
-    }, '*');
+      console.error('Error in bulk download:', error);
+    const errorMessage = { type: 'downloadError', error: 'Bulk download failed' };
+    window.postMessage(errorMessage, '*');
+    // Forward error to background script
+    chrome.runtime.sendMessage(errorMessage);
   }
 }
 
