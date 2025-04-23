@@ -30,14 +30,13 @@ This extension is designed for:
 Do NOT use this extension to:
 - Share or distribute content
 - Create copies for non-owners
-- Circumvent DRM or copyright protections
 - Make unauthorized duplicates
 
 ## Prerequisites
 
 Before using this extension, you'll need:
-- Google Chrome browser
-- This extension installed
+- Google Chrome Browser
+- This extension installed (steps below)
 - NFC Tools app ([Android](https://play.google.com/store/apps/details?id=com.wakdev.wdnfc) | [iOS](https://apps.apple.com/us/app/nfc-tools/id1252962749))
   - For iOS: Requires iPhone 7 or newer with iOS 15.6+
   - Free app with optional Pro features
