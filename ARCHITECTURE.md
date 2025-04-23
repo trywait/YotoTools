@@ -38,28 +38,33 @@ The extension is built using standard Chrome Extension APIs (Manifest V3) and fo
     - Enables/disables buttons based on the current page context.
     - Ensures the `content.js` script is injected into the active tab using `chrome.scripting.executeScript` if needed.
     - Sends messages (`chrome.tabs.sendMessage`) to `content.js` to trigger actions like viewing links, initiating downloads, or fetching details.
-    - Listens for messages (`chrome.runtime.onMessage`) from `content.js` or `background.js` (e.g., download progress, errors) and updates the popup UI (status text, progress bar).
+    - Queries the current state from `content.js` when opened to reflect the actual page state.
+    - Updates UI based on download progress and error messages.
 - **Key Functions**:
-    - `DOMContentLoaded` listener: Initializes the popup, checks the page, and sets up button listeners.
+    - `DOMContentLoaded` listener: Initializes the popup, checks the page, and fetches current state.
     - `ensureContentScript()`: Checks if the content script is loaded and injects it if necessary.
-    - Event listeners for buttons (`viewMediaButton`, `bulkDownloadButton`, etc.): Send appropriate messages to `content.js`.
-    - `messageListener`: Handles incoming messages for progress updates and error reporting.
+    - `updateUI()`: Central function for updating all UI elements based on state.
+    - Event listeners for buttons that trigger download actions.
+    - Message listener for progress updates and error reporting.
 
 ### 4. `content.js`
 
 - **Role**: Interacts directly with the web page content of Yoto card pages. Injected automatically based on `manifest.json` or programmatically by `popup.js`.
 - **Responsibilities**:
     - Listens for messages (`chrome.runtime.onMessage`) from `popup.js`.
+    - Maintains the source of truth for download state and progress on the page.
+    - Provides current state information to the popup when requested.
     - Scrapes the DOM of the Yoto card page to find relevant data (media URLs, titles, descriptions, cover art).
     - Parses the `__NEXT_DATA__` script tag on the page, which contains structured JSON data about the card content.
     - Handles different actions requested by the popup:
+        - `getCurrentState`: Returns the current download state from the page elements.
         - `viewMediaLinks`: Injects a visible list of media links into the page.
         - `bulkDownload`: Gathers all media links and metadata, then sends messages to `background.js` to download each file. Reports progress back to `popup.js`.
         - `downloadCoverArt`: Finds the cover art URL and tells `background.js` to download it.
         - `downloadCardDetails`: Extracts title, author, description, and track list, formats it as text, creates a Blob, and tells `background.js` to download it.
     - Sends progress updates (`chrome.runtime.sendMessage`) back to `popup.js` during bulk downloads.
 - **Key Functions**:
-    - `chrome.runtime.onMessage.addListener`: Handles incoming messages from the popup.
+    - `chrome.runtime.onMessage.addListener`: Handles incoming messages including state queries.
     - `findAndParseData()`: Locates and parses the `__NEXT_DATA__` JSON from the page.
     - `viewMediaLinks()`: Modifies the DOM to display links.
     - `bulkDownload()`: Orchestrates the download of all media files.
@@ -86,13 +91,21 @@ The extension is built using standard Chrome Extension APIs (Manifest V3) and fo
 1.  **User opens popup**: `popup.html` is loaded, `popup.js` runs.
 2.  **Page Check**: `popup.js` checks if the active tab URL matches Yoto patterns.
 3.  **Content Script Check**: `popup.js` sends a `ping` message to `content.js`. If no response, it injects `content.js`.
-4.  **User clicks button (e.g., "Complete Backup")**: `popup.js` sends an action message (e.g., `{ action: 'bulkDownload' }`) to `content.js`.
-5.  **Content Script Action**: `content.js` receives the message, scrapes/parses the page data.
-6.  **Download Initiation**: `content.js` iterates through media files. For each file, it sends a `downloadFile` message (with URL and filename) to `background.js`.
-7.  **Background Download**: `background.js` receives `downloadFile` messages and calls `chrome.downloads.download`.
-8.  **Progress Reporting**: `content.js` calculates download progress and sends `downloadProgress` messages to `popup.js`.
-9.  **Popup Update**: `popup.js` receives progress messages and updates the progress bar UI.
-10. **Error Handling**: If errors occur (e.g., parsing, download), messages are sent back to `popup.js` to update the status text.
+4.  **State Synchronization**: `popup.js` queries `content.js` for current download state and updates UI accordingly.
+5.  **User clicks button (e.g., "Complete Backup")**: `popup.js` sends an action message (e.g., `{ action: 'bulkDownload' }`) to `content.js`.
+6.  **Content Script Action**: `content.js` receives the message, scrapes/parses the page data.
+7.  **Download Initiation**: `content.js` iterates through media files. For each file, it sends a `downloadFile` message (with URL and filename) to `background.js`.
+8.  **Background Download**: `background.js` receives `downloadFile` messages and calls `chrome.downloads.download`.
+9.  **Progress Reporting**: `content.js` updates its own UI and sends `downloadProgress` messages to `popup.js`.
+10. **Popup Update**: `popup.js` receives progress messages and updates its UI to match the page state.
+11. **Popup Reopening**: If popup is closed and reopened, it queries `content.js` for current state, ensuring consistent display.
+
+## State Management
+
+- **Source of Truth**: The page DOM (managed by `content.js`) serves as the single source of truth for download state.
+- **State Synchronization**: The popup queries the content script's state when opened, ensuring it always reflects the actual page state.
+- **Progress Updates**: Both the page and popup maintain synchronized progress displays through message passing.
+- **Error Handling**: Errors are displayed consistently in both interfaces, with the page state being authoritative.
 
 ## Data Flow
 
