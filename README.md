@@ -1,0 +1,165 @@
+# Yoto Tools Chrome Extension
+
+A Chrome extension designed to help Yoto card owners create personal backups of their legally purchased content. This tool assists in archiving your owned Yoto card content for personal use and backup purposes.
+
+![Yoto Tools Screenshot](icons/128.png)
+
+## Important Notice
+
+This tool is intended **ONLY** for:
+- Creating personal backups of Yoto cards you have legally purchased
+- Archiving your owned content for personal use
+- Ensuring access to your purchased content for offline educational or backup purposes
+
+**Please Note**: This tool should only be used to backup content you have legitimately purchased. Unauthorized distribution or sharing of backed-up content may violate copyright laws.
+
+## Features
+
+- 🔒 **Personal Backup**: Create backups of your purchased Yoto card content
+- 📚 **Content Archive**: Organize your owned content for offline access
+- 🖼️ **Media Preservation**: Save cover art and details of your purchased cards
+- 🎨 **Modern UI**: Clean, Apple-inspired design with smooth animations
+- 🔐 **Privacy-Focused**: Works entirely client-side with minimal permissions
+
+## Legal Usage
+
+This extension is designed for:
+1. **Personal Backup**: Creating archives of your purchased content
+2. **Offline Access**: Ensuring access to your owned content when internet isn't available
+3. **Educational Use**: Allowing teachers and parents to prepare educational materials from legally purchased content
+
+Do NOT use this extension to:
+- Share or distribute content
+- Create copies for non-owners
+- Circumvent DRM or copyright protections
+- Make unauthorized duplicates
+
+## Prerequisites
+
+Before using this extension, you'll need:
+- Google Chrome browser
+- This extension installed
+- NFC Tools app ([Android](https://play.google.com/store/apps/details?id=com.wakdev.wdnfc) | [iOS](https://apps.apple.com/us/app/nfc-tools/id1252962749))
+  - For iOS: Requires iPhone 7 or newer with iOS 15.6+
+  - Free app with optional Pro features
+- Your legally purchased Yoto cards
+
+## Installation
+
+### From Chrome Web Store
+1. Visit the Chrome Web Store (link coming soon)
+2. Click "Add to Chrome"
+3. Confirm the installation when prompted
+
+### Manual Installation (Developer Mode)
+1. Download or clone this repository
+2. Open Chrome and go to `chrome://extensions/`
+3. Enable "Developer mode" in the top-right corner
+4. Click "Load unpacked"
+5. Select the directory containing the extension files
+
+## Usage
+
+### Step 1: Get Your Card's URL
+1. Install NFC Tools on your mobile device:
+   - [iOS App Store](https://apps.apple.com/us/app/nfc-tools/id1252962749) (requires iPhone 7 or newer, iOS 15.6+)
+   - [Android Play Store](https://play.google.com/store/apps/details?id=com.wakdev.wdnfc)
+2. Open NFC Tools and scan your Yoto card
+3. Look for "Record 1" in the scan results
+4. Find the URL that looks like: `yoto.io/ABC123?xxxxxxx=yyyyyyyy`
+5. Copy or note down this URL
+
+### Step 2: Access the Card Page
+1. On your computer (not phone), open Chrome
+2. Paste the `yoto.io` URL you found in Step 1
+3. The URL will redirect to the official Yoto card page
+4. Wait for the page to fully load
+
+### Step 3: Use the Extension
+1. Click the Yoto Tools extension icon in your Chrome toolbar
+2. You'll see four options:
+   - **View Media Links**: Adds a section to the top of the current web page displaying clickable links for all available content (useful for quick checks or saving individual files via right-click -> "Save Link As...")
+   - **Complete Backup**: Creates a complete backup of all card content in a folder
+   - **Save Card Artwork**: Saves the card's main artwork to a folder
+   - **Save Card Information**: Saves card details (title, author, description, track list) as a text file in a folder
+
+### Step 4: Locate Your Backups
+1. By default, files are saved to your computer's Downloads folder
+2. A new folder will be created named after your card (e.g., "Jack and the Beanstalk")
+3. Inside the folder, you'll find:
+   - Audio files named: `Track 1 - [Title].mp3`, `Track 2 - [Title].mp3`, etc.
+   - Chapter/Track images named: `Image 1 - [Track Title].jpg`, `Image 2 - [Track Title].jpg`, etc. (if available)
+   - Cover artwork named: `Cover Art - [Card Title].jpg`
+   - Card information saved as: `[Card Title] - Details.txt`
+4. All files are automatically organized and numbered in the order they appear on the card
+
+### Important Notes
+- Always ensure you're backing up cards you own
+- Keep your backups secure and for personal use only
+- The extension works on official Yoto card pages matching these patterns:
+  - `https://play.yotoplay.com/*/card/*`
+  - `https://share.yoto.co/*`
+- Make sure to keep your NFC Tools app updated
+
+## Privacy & Security
+
+We prioritize your privacy:
+- No data collection
+- No external servers
+- All processing happens locally in your browser
+- No analytics or tracking
+- Your content remains private and secure
+
+## Development
+
+### Project Structure
+```
+yoto-tools/
+├── icons/              # Extension icons (16, 32, 48, 128px)
+├── popup.html         # Extension popup interface
+├── popup.js          # Popup functionality and UI interactions
+├── content.js        # Content script for interacting with Yoto pages
+├── background.js     # Service worker for download handling
+├── manifest.json     # Extension configuration
+└── README.md         # Documentation
+```
+
+### Building from Source
+1. Clone the repository
+2. Make any desired modifications
+3. Load the extension in Chrome using Developer mode
+
+## Contributing
+
+We welcome contributions that respect intellectual property rights and focus on:
+- Improving backup functionality
+- Enhancing user privacy
+- Strengthening security
+- Improving documentation
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Legal Disclaimer
+
+This extension is not affiliated with, endorsed by, or sponsored by Yoto. Yoto is a registered trademark of Yoto Limited. This tool is provided as-is without any warranty of any kind.
+
+This tool is designed solely for creating personal backups of legally purchased content. Users are responsible for ensuring their use of this tool complies with:
+- Copyright laws
+- Terms of service
+- Licensing agreements
+- Local regulations regarding content backup
+
+The developers do not endorse or encourage any unauthorized copying or distribution of copyrighted material.
+
+## Support
+
+If you encounter any issues or have questions:
+1. Check the [Issues](https://github.com/trywait/YotoTools/issues) page (Please update this link!)
+2. Create a new issue if needed
+3. Provide detailed information about the problem
+
+---
+
+Made with ❤️ for the Yoto community 
