@@ -38,11 +38,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     downloadCoverButton.disabled = false;
     downloadDetailsButton.disabled = false;
 
-    // Ensure content script is ready when page loads
+    // Ensure content script is ready
     await ensureContentScript();
   }
 
-  // Handle View Media Links button
+  // Handle View Media Links button (kept for backward compatibility)
   viewMediaButton.addEventListener('click', async () => {
     try {
       await ensureContentScript();
