@@ -307,18 +307,12 @@ async function bulkDownload() {
     const cardAuthor = document.querySelector('div.card-author b')?.textContent?.trim() || 'Unknown Author';
     const cardDescription = document.querySelector('div.card-description')?.textContent?.trim() || 'No description available';
     
-    // Extract track list
-    const trackTable = document.querySelector('table.MuiTable-root');
+    // Get track list from original data
     let trackList = 'No tracks available';
-    if (trackTable) {
-      const tracks = Array.from(trackTable.querySelectorAll('tr')).map(row => {
-        const cells = row.querySelectorAll('td');
-        if (cells.length >= 2) {
-          return cells[1].textContent.trim();
-        }
-        return null;
-      }).filter(track => track !== null);
-      
+    if (cardData.content.chapters) {
+      const tracks = cardData.content.chapters.flatMap(chapter => 
+        chapter.tracks.map(track => track.title)
+      );
       if (tracks.length > 0) {
         trackList = formatTrackList(tracks);
       }
