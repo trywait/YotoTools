@@ -4,7 +4,7 @@
   
   <h1 style="margin: 0.5em 0;">Yoto Tools</h1>
 
-  ![Version](https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge&labelColor=darkblue)
+  ![Version](https://img.shields.io/badge/version-1.1.0-blue?style=for-the-badge&labelColor=darkblue)
   ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
 
   A Chrome extension for creating personal backups of your legally purchased Yoto card content.
@@ -34,8 +34,6 @@
 
 A Chrome extension designed to help Yoto card owners create personal backups of their legally purchased content. This tool assists in archiving your owned Yoto card content for personal use and backup purposes.
 
-![Yoto Tools Screenshot](icons/128.png)
-
 ## Important Notice
 
 This tool is intended **ONLY** for:
@@ -52,17 +50,18 @@ This tool is intended **ONLY** for:
 - 🎨 **Simple UI**: Clean and simple design with synchronized state and progress display
 - 🔐 **Privacy-Focused**: Works entirely client-side with minimal permissions
 
-## Legal Usage
+## Legal Usage TLDR
 
 This extension is designed for:
 1. **Personal Backup**: Creating archives of your purchased content
 2. **Offline Access**: Ensuring access to your owned content when internet isn't available
-3. **Educational Use**: Allowing teachers and parents to prepare educational materials from legally purchased content
 
 Do NOT use this extension to:
 - Share or distribute content
 - Create copies for non-owners
 - Make unauthorized duplicates
+
+[Read More Here](#legal-disclaimer)
 
 ## Prerequisites
 
