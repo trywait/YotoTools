@@ -1,3 +1,33 @@
+<div align="center">
+
+  <img src="icons/128.png" alt="Yoto Tools Logo" width="128px"/>
+
+  ![Version](https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge&labelColor=darkblue)
+  ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
+
+  A Chrome extension for creating personal backups of your legally purchased Yoto card content.
+  
+  <hr>
+
+  [![Commit activity](https://img.shields.io/github/commit-activity/m/trywait/YotoTools?cacheSeconds=0)](https://github.com/trywait/YotoTools/commits/main)
+  ![Last commit](https://img.shields.io/github/last-commit/trywait/YotoTools/main?cacheSeconds=0)
+  [![Opened issues](https://img.shields.io/github/issues/trywait/YotoTools?color=red&cacheSeconds=0)](https://github.com/trywait/YotoTools/issues)
+  [![Closed issues](https://img.shields.io/github/issues-closed/trywait/YotoTools?color=green&cacheSeconds=0)](https://github.com/trywait/YotoTools/issues?q=is%3Aissue+state%3Aclosed)
+  ![License](https://img.shields.io/github/license/trywait/YotoTools)
+
+</div>
+
+<div align="center">
+
+---
+[Features](#features) | [Installation](#installation) | [Usage](#usage) | [Privacy & Security](#privacy--security) | [Development](#development) | [Legal](#legal-disclaimer)
+
+---
+
+</div>
+
+> 👾 **Looking to create pixel art for your Yoto MYO cards?** Check out [YoPix](https://yopix.ordinarytools.com/) - a free 16×16 pixel art editor designed specifically for Yoto cards and playlists! ([GitHub](https://github.com/trywait/yopix-public))
+
 # Yoto Tools Chrome Extension
 
 A Chrome extension designed to help Yoto card owners create personal backups of their legally purchased content. This tool assists in archiving your owned Yoto card content for personal use and backup purposes.
@@ -175,15 +205,32 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Legal Disclaimer
 
-This extension is not affiliated with, endorsed by, or sponsored by Yoto. Yoto is a registered trademark of Yoto Limited. This tool is provided as-is without any warranty of any kind.
+This tool is not affiliated with, endorsed by, or sponsored by Yoto. Yoto is a registered trademark of Yoto Limited.
 
-This tool is designed solely for creating personal backups of legally purchased content. Users are responsible for ensuring their use of this tool complies with:
-- Copyright laws
-- Terms of service
+This tool is provided "as-is" and "as-available" without any warranty of any kind, either express or implied, including but not limited to the implied warranties of merchantability, fitness for a particular purpose, title, or non-infringement. The developers, contributors, and maintainers of this tool shall not be liable for any damages or losses arising from its use, whether direct, indirect, incidental, special, consequential, or exemplary, including but not limited to loss of data, profits, or functionality.
+
+The developers, contributors, and maintainers:
+- Are not affiliated with, endorsed by, or sponsored by Yoto or any associated entities
+- Make no representations or warranties about the accuracy or completeness of the tool's content or functionality
+- Disclaim all liability for any damages or losses resulting from the use of this tool
+- Do not guarantee the tool's compatibility with any specific version of Yoto's services or content
+
+This tool is designed solely for creating personal backups of legally purchased content. Users are solely responsible for ensuring their use of this tool complies with:
+- Copyright laws and intellectual property rights
+- Terms of service of content providers
 - Licensing agreements
-- Local regulations regarding content backup
+- Local regulations regarding content backup and usage
+- Data protection and privacy laws
+- Any other applicable laws or regulations
 
-The developers do not endorse or encourage any unauthorized copying or distribution of copyrighted material.
+The developers do not endorse, encourage, or accept any responsibility for:
+- Unauthorized copying or distribution of copyrighted material
+- Violations of terms of service or user agreements
+- Any illegal or unauthorized use of this tool
+- Any modifications made to downloaded content
+- Any consequences resulting from the use or misuse of this tool
+
+By using this tool, you acknowledge and agree to these terms and accept full responsibility for ensuring your use complies with all applicable laws and regulations.
 
 ## Support
 
