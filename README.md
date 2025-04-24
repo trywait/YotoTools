@@ -1,6 +1,8 @@
 <div align="center">
 
   <img src="icons/128.png" alt="Yoto Tools Logo" width="128px"/>
+  
+  <h1 style="margin: 0.5em 0;">Yoto Tools</h1>
 
   ![Version](https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge&labelColor=darkblue)
   ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
@@ -26,7 +28,7 @@
 
 </div>
 
-> 👾 **Looking to create pixel art for your Yoto MYO cards?** Check out [YoPix](https://yopix.ordinarytools.com/) - a free 16×16 pixel art editor designed specifically for Yoto cards and playlists! ([GitHub](https://github.com/trywait/yopix-public))
+> 👾 **Looking to create pixel art for your Yoto MYO cards?** Check out [YoPix](https://yopix.ordinarytools.com/) (live demo) - a free 16×16 pixel art editor designed specifically for Yoto cards and playlists! (You can also run it locally: [GitHub](https://github.com/trywait/yopix-public))
 
 # Yoto Tools Chrome Extension
 
