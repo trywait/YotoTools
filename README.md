@@ -15,7 +15,7 @@
   ![Last commit](https://img.shields.io/github/last-commit/trywait/YotoTools/main?cacheSeconds=0)
   [![Opened issues](https://img.shields.io/github/issues/trywait/YotoTools?color=red&cacheSeconds=0)](https://github.com/trywait/YotoTools/issues)
   [![Closed issues](https://img.shields.io/github/issues-closed/trywait/YotoTools?color=green&cacheSeconds=0)](https://github.com/trywait/YotoTools/issues?q=is%3Aissue+state%3Aclosed)
-  ![License](https://img.shields.io/github/license/trywait/YotoTools)
+  [![License](https://img.shields.io/github/license/trywait/YotoTools)](https://github.com/trywait/YotoTools/blob/main/LICENSE)
 
 </div>
 
