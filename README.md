@@ -96,6 +96,13 @@ Before using this extension, you'll need:
    - [Android Play Store](https://play.google.com/store/apps/details?id=com.wakdev.wdnfc)
 2. Open NFC Tools and scan your Yoto card
 3. Look for "Record 1" in the scan results
+
+<div align="center">
+  <img src="images/nfc_yoto_link.jpg" alt="NFC Tools showing Record 1" width="300"/>
+  <br>
+  <em>Look for the Record 1 URL in NFC Tools after scanning your card</em>
+</div>
+
 4. Find the URL that looks like: `yoto.io/ABC123?xxxxxxx=yyyyyyyy`
 5. Copy or note down this URL
 
