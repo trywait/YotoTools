@@ -595,7 +595,7 @@ function injectDownloadButtons() {
           if (progress === 100) {
             statusText.textContent = 'Backup Complete!';
             statusText.style.color = '#34C759';
-            setButtonSuccess(completeBackupButton, 'Complete Backup');
+            setButtonSuccess(completeBackupButton, 'Backup Complete');
             setTimeout(() => {
               progressContainer.style.display = 'none';
               window.removeEventListener('message', messageHandler);
@@ -620,10 +620,20 @@ function injectDownloadButtons() {
   };
 
   completeBackupButton.onmouseover = () => {
-    completeBackupButton.style.backgroundColor = '#1557b0';
+    // If button is in success state (has green background), use a lighter green
+    if (completeBackupButton.style.backgroundColor === 'rgb(232, 245, 233)') { // #e8f5e9
+      completeBackupButton.style.backgroundColor = '#c8e6c9'; // Lighter green
+    } else {
+      completeBackupButton.style.backgroundColor = '#1557b0'; // Original blue hover
+    }
   };
   completeBackupButton.onmouseout = () => {
-    completeBackupButton.style.backgroundColor = '#1a73e8';
+    // Return to appropriate color based on state
+    if (completeBackupButton.style.backgroundColor === 'rgb(200, 230, 201)') { // #c8e6c9
+      completeBackupButton.style.backgroundColor = '#e8f5e9'; // Original success green
+    } else {
+      completeBackupButton.style.backgroundColor = '#1a73e8'; // Original blue
+    }
   };
 
   // Assemble the secondary buttons
@@ -789,18 +799,20 @@ function setButtonSuccess(button, originalText) {
   button.style.color = '#2e7d32';
   button.disabled = true;
 
-  // Send message to popup about state change
-  let actionType = '';
-  if (button === completeBackupButton) actionType = 'bulkDownload';
-  else if (button === detailsButton) actionType = 'cardDetails';
-  else if (button === artworkButton) actionType = 'cardArtwork';
-  
-  if (actionType) {
-    chrome.runtime.sendMessage({
-      type: 'buttonStateChange',
-      action: actionType,
-      state: 'success'
-    });
+  // Only send state change messages for main buttons, not track buttons
+  if (button.classList.contains('primary-button') || button.classList.contains('secondary-button')) {
+    let actionType = '';
+    if (button.classList.contains('primary-button')) actionType = 'bulkDownload';
+    else if (button.innerHTML.includes('Card Details')) actionType = 'cardDetails';
+    else if (button.innerHTML.includes('Card Artwork')) actionType = 'cardArtwork';
+    
+    if (actionType) {
+      chrome.runtime.sendMessage({
+        type: 'buttonStateChange',
+        action: actionType,
+        state: 'success'
+      });
+    }
   }
 }
 
