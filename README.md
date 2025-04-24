@@ -34,14 +34,13 @@
 
 A Chrome extension designed to help Yoto card owners create personal backups of their legally purchased content. This tool assists in archiving your owned Yoto card content for personal use and backup purposes.
 
-## Important Notice
+## Important Notice (Legal TLDR)
 
-This tool is intended **ONLY** for:
-- Creating personal backups of Yoto cards you have legally purchased
-- Archiving your owned content for personal use
-- Ensuring access to your purchased content for offline educational or backup purposes
+This extension is designed for:
+1. **Personal Backup**: Creating archives of your purchased content
+2. **Offline Access**: Ensuring access to your owned content when internet isn't available
 
-**Please Note**: This tool should only be used to backup content you have legitimately purchased. Unauthorized distribution or sharing of backed-up content may violate copyright laws.
+[Read More Here](#legal-disclaimer)
 
 ## Features
 
@@ -50,24 +49,11 @@ This tool is intended **ONLY** for:
 - 🎨 **Simple UI**: Clean and simple design with synchronized state and progress display
 - 🔐 **Privacy-Focused**: Works entirely client-side with minimal permissions
 
-## Legal Usage TLDR
-
-This extension is designed for:
-1. **Personal Backup**: Creating archives of your purchased content
-2. **Offline Access**: Ensuring access to your owned content when internet isn't available
-
-Do NOT use this extension to:
-- Share or distribute content
-- Create copies for non-owners
-- Make unauthorized duplicates
-
-[Read More Here](#legal-disclaimer)
-
 ## Prerequisites
 
 Before using this extension, you'll need:
 - Google Chrome Browser
-- This extension installed (steps below)
+- This extension installed manually (steps below)
 - NFC Tools app ([Android](https://play.google.com/store/apps/details?id=com.wakdev.wdnfc) | [iOS](https://apps.apple.com/us/app/nfc-tools/id1252962749))
   - For iOS: Requires iPhone 7 or newer with iOS 15.6+
   - Free app with optional Pro features
@@ -76,6 +62,9 @@ Before using this extension, you'll need:
 ## Installation
 
 ### Manual Installation (Developer Mode)
+
+> This is not in the Chrome Web Store, so you will need to upload it manually using "Developer Mode"
+
 1. Download or clone this repository (by pasting this into your terminal):
    ```bash
    git clone https://github.com/trywait/YotoTools.git
