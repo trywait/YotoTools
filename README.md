@@ -71,8 +71,8 @@ Before using this extension, you'll need:
    ```
 2. Open Chrome and go to `chrome://extensions/`
 3. Enable "Developer mode" in the top-right corner
-4. Click "Load unpacked"
-5. Select the directory containing the extension files
+4. Click "Load unpacked" in the top-left corner
+5. Select the unzipped folder containing the extension files
 6. Once loaded, click the puzzle piece icon (Extensions) in Chrome's toolbar
 7. Find "Yoto Tools" in the dropdown list
 8. Click the pin icon next to it to keep it visible in your toolbar (optional)
@@ -83,7 +83,7 @@ Before using this extension, you'll need:
 1. Install NFC Tools on your mobile device:
    - [iOS App Store](https://apps.apple.com/us/app/nfc-tools/id1252962749) (requires iPhone 7 or newer, iOS 15.6+)
    - [Android Play Store](https://play.google.com/store/apps/details?id=com.wakdev.wdnfc)
-2. Open NFC Tools and scan your Yoto card
+2. Open NFC Tools and scan your Yoto card (Read)
 3. Look for "Record 1" in the scan results
 
 <div align="center">
@@ -104,10 +104,20 @@ Before using this extension, you'll need:
 ### Step 3: Use the Extension
 1. Once on the card page (after it redirects), you'll see download buttons directly on the screen:
    *Note: Do not refresh this page as it will lead to a 404 error. If this happens, simply return to Step 1.4 and re-enter the original `yoto.io` URL.*
+   
+   <div align="center">
+     <img src="images/YotoTools_allsave.gif" alt="Yoto Tools Save Complete Backup Demo" width="500"/>
+   </div>
+   
    - **Save Complete Backup**: Downloads all card content into an organized folder
    - **Save Card Details**: Saves a text file with the card's information
    - **Save Card Artwork**: Downloads the card's cover art
-   - **Save Audio / Save Audio**: Downloads that specific track audio or icon
+   
+   <div align="center">
+     <img src="images/YotoTools_tracksave.gif" alt="Yoto Tools Save Track Audio/Icon Demo" width="500"/>
+   </div>
+   
+   - **Save Audio / Save Icon**: Downloads that specific track audio or icon
    
 2. You can also click the Yoto Tools extension icon in your Chrome toolbar for quick actions.
 
