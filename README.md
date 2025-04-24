@@ -30,6 +30,13 @@
 
 > 👾 **Looking to create pixel art for your Yoto MYO cards?** Check out [YoPix](https://yopix.ordinarytools.com/) (live demo) - a free 16×16 pixel art editor designed specifically for Yoto cards and playlists! (You can also run it locally: [GitHub](https://github.com/trywait/yopix-public))
 
+
+<div align="center">
+  <img src="images/YotoTools_ExtensionPreview.png" alt="Yoto Tools Extension Preview" width="600"/>
+  <br>
+  <em>Yoto Tools Extension Preview</em>
+</div>
+
 # Yoto Tools Chrome Extension
 
 A Chrome extension designed to help Yoto card owners create personal backups of their legally purchased content. This tool assists in archiving your owned Yoto card content for personal use and backup purposes.
