@@ -5,7 +5,7 @@
   <h1 style="margin: 0.5em 0;">Yoto Tools</h1>
 
   ![Version](https://img.shields.io/badge/version-1.1.0-blue?style=for-the-badge&labelColor=darkblue)
-  ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
+  [![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)](https://github.com/trywait/YotoTools/blob/main/LICENSE)
 
   A Chrome extension for creating personal backups of your legally purchased Yoto card content.
   
@@ -15,7 +15,6 @@
   ![Last commit](https://img.shields.io/github/last-commit/trywait/YotoTools/main?cacheSeconds=0)
   [![Opened issues](https://img.shields.io/github/issues/trywait/YotoTools?color=red&cacheSeconds=0)](https://github.com/trywait/YotoTools/issues)
   [![Closed issues](https://img.shields.io/github/issues-closed/trywait/YotoTools?color=green&cacheSeconds=0)](https://github.com/trywait/YotoTools/issues?q=is%3Aissue+state%3Aclosed)
-  [![License](https://img.shields.io/github/license/trywait/YotoTools)](https://github.com/trywait/YotoTools/blob/main/LICENSE)
 
 </div>
 
