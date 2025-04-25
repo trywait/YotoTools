@@ -44,7 +44,7 @@
 
 # Yoto Tools Chrome Extension
 
-A Chrome extension designed to help Yoto card owners create personal backups of their legally purchased content. This tool assists in archiving your owned Yoto card content for personal use and backup purposes.
+A Chrome extension designed to help Yoto card owners create personal backups of their legally purchased and created content. This tool assists in archiving your owned Yoto card and MYO content for personal use and backup purposes.
 
 ## Important Notice (Legal TLDR)
 
@@ -122,7 +122,7 @@ Before using this extension, you'll need:
 
 ### Step 3: Use the Extension
 1. Once on the card page (after it redirects), you'll see download buttons directly on the screen:
-   *Note: Do not refresh this page as it will lead to a 404 error. If this happens, simply return to Step 1.4 and re-enter the original `yoto.io` URL. Yoto Originals cannot be backed up*
+   *Note: Do not refresh this page as it will lead to a 404 error. If this happens, simply return to Step 1.4 and re-enter the original `yoto.io` URL. Yoto Originals cannot be backed up.*
    
    <div align="center">
      <img src="images/YotoTools_allsave.gif" alt="Yoto Tools Save Complete Backup Demo" width="500"/>
