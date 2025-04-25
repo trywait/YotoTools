@@ -147,7 +147,7 @@ Before using this extension, you'll need:
 ### Step 1: Select an MYO card from the [My playlists](https://my.yotoplay.com/my-cards) page
 
 <div align="center">
-  <img src="MYOpreviewAll.gif" alt="Yoto Tools MYO Backup" width="600"/>
+  <img src="images/MYOpreviewAll.gif" alt="Yoto Tools MYO Backup" width="600"/>
   <br>
   <em>Backup your MYO content</em>
 </div>
