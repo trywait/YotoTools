@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const bulkDownloadButton = document.getElementById('bulkDownload');
   const downloadCoverButton = document.getElementById('downloadCover');
   const downloadDetailsButton = document.getElementById('downloadDetails');
+  const downloadIconsButton = document.getElementById('downloadIcons');
+  const downloadAudioButton = document.getElementById('downloadAudio');
   const statusText = document.getElementById('status');
   const progressContainer = document.getElementById('progress');
   const progressFill = document.getElementById('progressFill');
@@ -36,6 +38,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     bulkDownloadButton.disabled = true;
     downloadCoverButton.disabled = true;
     downloadDetailsButton.disabled = true;
+    downloadIconsButton.disabled = true;
+    downloadAudioButton.disabled = true;
   }
 
   async function ensureContentScript(tabId) {
@@ -81,6 +85,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       resetButtonStyles(bulkDownloadButton);
       resetButtonStyles(downloadDetailsButton);
       resetButtonStyles(downloadCoverButton);
+      resetButtonStyles(downloadIconsButton);
+      resetButtonStyles(downloadAudioButton);
       return;
     }
 
@@ -88,6 +94,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       bulk: state.buttonStates.bulkDownload ?? false,
       details: state.buttonStates.cardDetails ?? false,
       artwork: state.buttonStates.cardArtwork ?? false,
+      icons: state.buttonStates.cardIcons ?? false,
+      audio: state.buttonStates.cardAudio ?? false,
     };
 
     bulkDownloadButton.disabled = shouldBeDisabled.bulk;
@@ -101,6 +109,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     downloadCoverButton.disabled = shouldBeDisabled.artwork;
     if (shouldBeDisabled.artwork) setButtonSuccess(downloadCoverButton);
     else resetButtonStyles(downloadCoverButton);
+
+    downloadIconsButton.disabled = shouldBeDisabled.icons;
+    if (shouldBeDisabled.icons) setButtonSuccess(downloadIconsButton);
+    else resetButtonStyles(downloadIconsButton);
+
+    downloadAudioButton.disabled = shouldBeDisabled.audio;
+    if (shouldBeDisabled.audio) setButtonSuccess(downloadAudioButton);
+    else resetButtonStyles(downloadAudioButton);
   }
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -121,23 +137,49 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateUI(null, false);
   }
 
-  bulkDownloadButton.addEventListener('click', () => {
-    if (!bulkDownloadButton.disabled) {
-      chrome.tabs.sendMessage(tab.id, { action: 'bulkDownload' });
-    }
-  });
+  const buttons = [
+    bulkDownloadButton,
+    downloadCoverButton,
+    downloadDetailsButton,
+    downloadIconsButton,
+    downloadAudioButton
+  ];
 
-  downloadCoverButton.addEventListener('click', () => {
-    if (!downloadCoverButton.disabled) {
-      chrome.tabs.sendMessage(tab.id, { action: 'downloadCoverArt' });
-    }
-  });
+  if (bulkDownloadButton) {
+    bulkDownloadButton.addEventListener('click', () => {
+      if (!bulkDownloadButton.disabled) {
+        chrome.tabs.sendMessage(tab.id, { action: 'bulkDownload' });
+      }
+    });
+  }
 
-  downloadDetailsButton.addEventListener('click', () => {
-    if (!downloadDetailsButton.disabled) {
-      chrome.tabs.sendMessage(tab.id, { action: 'downloadCardDetails' });
-    }
-  });
+  if (downloadCoverButton) {
+    downloadCoverButton.addEventListener('click', () => {
+      if (!downloadCoverButton.disabled) {
+        chrome.tabs.sendMessage(tab.id, { action: 'downloadCoverArt' });
+      }
+    });
+  }
+
+  if (downloadDetailsButton) {
+    downloadDetailsButton.addEventListener('click', () => {
+      if (!downloadDetailsButton.disabled) {
+        chrome.tabs.sendMessage(tab.id, { action: 'downloadCardDetails' });
+      }
+    });
+  }
+
+  if (downloadIconsButton) {
+    downloadIconsButton.addEventListener('click', () => {
+      chrome.tabs.sendMessage(tab.id, { action: 'downloadIcons' });
+    });
+  }
+
+  if (downloadAudioButton) {
+    downloadAudioButton.addEventListener('click', () => {
+      chrome.tabs.sendMessage(tab.id, { action: 'downloadAudio' });
+    });
+  }
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'buttonStateChange') {

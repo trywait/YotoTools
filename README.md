@@ -4,10 +4,10 @@
   
   <h1 style="margin: 0.5em 0;">Yoto Tools</h1>
 
-  ![Version](https://img.shields.io/badge/version-1.1.0-blue?style=for-the-badge&labelColor=darkblue)
+  ![Version](https://img.shields.io/badge/version-2.0.0-blue?style=for-the-badge&labelColor=darkblue)
   [![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)](https://github.com/trywait/YotoTools/blob/main/LICENSE)
 
-  A Chrome extension for creating personal backups of your legally purchased Yoto card content.
+  A Chrome extension for creating personal backups of your legally purchased and MYO Yoto card content.
   
   <hr>
 
@@ -31,9 +31,15 @@
 
 
 <div align="center">
-  <img src="images/YotoTools_ExtensionPreview.png" alt="Yoto Tools Extension Preview" width="600"/>
+  <img src="images/YotoToolsExtensionPreview.png" alt="Yoto Tools Extension Preview" width="600"/>
   <br>
-  <em>Yoto Tools Extension Preview</em>
+  <em>Yoto Tools Share Page Preview</em>
+</div>
+
+<div align="center">
+  <img src="images/YotoToolsMYO_screenshot.png" alt="Yoto Tools Extension Preview" width="600"/>
+  <br>
+  <em>Yoto Tools MYO Playlist Page Preview</em>
 </div>
 
 # Yoto Tools Chrome Extension
@@ -43,17 +49,25 @@ A Chrome extension designed to help Yoto card owners create personal backups of 
 ## Important Notice (Legal TLDR)
 
 This extension is designed for:
-1. **Personal Backup**: Creating archives of your purchased content
+1. **Personal Backup**: Creating archives of your created and purchased content
 2. **Offline Access**: Ensuring access to your owned content when internet isn't available
 
 [Read More Here](#legal-disclaimer)
+
+## ✨ What's New in Version 2.0 ✨
+
+- **MYO Card Support**: You can now backup your own content directly from the "Edit your playlist" MYO page (`my.yotoplay.com/card/*/edit`). This includes downloading your uploaded audio tracks, icons, cover art, and details.
+- **Unified UI**: The user interface has been updated for consistency across both share pages and MYO edit pages. Buttons are injected directly into the page for easy access.
+- **Improved Stability**: Refactored background processes for API communication and download management. Uses `chrome.storage.local` for more reliable state persistence.
+- **Plays Nice with MYO Studio**: You can use both without them interfering... We are all on the same team 🤙
 
 ## Features
 
 - 🔒 **Personal Backup**: Create backups of your purchased Yoto card content
 - 📚 **Content Archive**: Save and organize your owned content for offline access
-- 🎨 **Simple UI**: Clean and simple design with synchronized state and progress display
+- 🎨 **Simple UI**: Clean and simple design with synchronized state and progress display, injected directly into the page so you don't have to activate the extension.
 - 🔐 **Privacy-Focused**: Works entirely client-side with minimal permissions
+- 📼 **MYO Backup**: Backup your own uploaded content from the *Edit your playlist* page (`my.yotoplay.com/card/*/edit`).
 
 ## Prerequisites
 
@@ -83,9 +97,9 @@ Before using this extension, you'll need:
 7. Find "Yoto Tools" in the dropdown list
 8. Click the pin icon next to it to keep it visible in your toolbar (optional)
 
-## Usage
+## Usage (Owned Cards)
 
-### Step 1: Get Your Card's URL
+### Step 1: Get Your Card's URL (for Purchased Cards)
 1. Install NFC Tools on your mobile device:
    - [iOS App Store](https://apps.apple.com/us/app/nfc-tools/id1252962749) (requires iPhone 7 or newer, iOS 15.6+)
    - [Android Play Store](https://play.google.com/store/apps/details?id=com.wakdev.wdnfc)
@@ -103,57 +117,77 @@ Before using this extension, you'll need:
 
 ### Step 2: Access the Card Page
 1. On your computer (not phone), open Chrome
-2. Paste the `yoto.io` URL you found in Step 1
-3. The URL will redirect to the official Yoto card page
-4. Wait for the page to fully load
+2. **For Purchased Cards**: Paste the `yoto.io` URL you found in Step 1 into the address bar. The URL will redirect to the official Yoto card page (`share.yoto.co`).
+3. Wait for the page to fully load.
 
 ### Step 3: Use the Extension
 1. Once on the card page (after it redirects), you'll see download buttons directly on the screen:
-   *Note: Do not refresh this page as it will lead to a 404 error. If this happens, simply return to Step 1.4 and re-enter the original `yoto.io` URL.*
+   *Note: Do not refresh this page as it will lead to a 404 error. If this happens, simply return to Step 1.4 and re-enter the original `yoto.io` URL. Yoto Originals cannot be backed up*
    
    <div align="center">
      <img src="images/YotoTools_allsave.gif" alt="Yoto Tools Save Complete Backup Demo" width="500"/>
    </div>
    
-   - **Save Complete Backup**: Downloads all card content into an organized folder
-   - **Save Card Details**: Saves a text file with the card's information
-   - **Save Card Artwork**: Downloads the card's cover art
+   - **Save Complete Backup**: Downloads all card content into an organized folder.
+   - **Save Cover**: Downloads the card's cover art.
+   - **Save Details**: Saves a text file with the card's information— Title, description, author, and track list.
+   - **Save Icons**: Downloads all available track icons.
+   - **Save Audio**: Downloads all available audio tracks.
    
    <div align="center">
      <img src="images/YotoTools_tracksave.gif" alt="Yoto Tools Save Track Audio/Icon Demo" width="500"/>
    </div>
    
-   - **Save Audio / Save Icon**: Downloads that specific track audio or icon
+   - **Individual Track Buttons**: Small "Save Audio" and "Save Icon" buttons appear next to each track, allowing individual downloads.
    
-2. You can also click the Yoto Tools extension icon in your Chrome toolbar for quick actions.
+2. You can also click the Yoto Tools extension icon in your Chrome toolbar for quick actions on the share page (though the primary interface is now injected on the page).
 
-Both methods will save your files in the same organized way, so you can use whichever is more convenient.
+## Usage (MYO Cards / Playlists)
 
-### Step 4: Locate Your Backups
+### Step 1: Select an MYO card from the [My playlists](https://my.yotoplay.com/my-cards) page
+
+<div align="center">
+  <img src="MYOpreviewAll.gif" alt="Yoto Tools MYO Backup" width="600"/>
+  <br>
+  <em>Backup your MYO content</em>
+</div>
+
+### Step 2: Backup your content
+1. Wait for the page to fully load.
+
+   - **Save Complete Backup**: Downloads all card content into an organized folder.
+   - **Save Cover**: Downloads the card's cover art.
+   - **Save Details**: Saves a text file with the card's information— Title, description, author, and track list.
+   - **Save Icons**: Downloads all available track icons.
+   - **Save Audio**: Downloads all available audio tracks.
+   - **Individual Track Buttons**: Small "Save Audio" and "Save Icon" buttons appear next to each track, allowing individual downloads.
+   
+### Locate Your Backups
 1. By default, files are saved to your computer's Downloads folder
 2. A new folder will be created named after your card (e.g., "Jack and the Beanstalk")
 3. Inside the folder, you'll find:
-   - Audio files named: `Track 1 - [Title].mp4`, `Track 2 - [Title].mp4`, etc.
-   - Chapter/Track images named: `Image 1 - [Track Title].jpg`, `Image 2 - [Track Title].jpg`, etc. (if available)
-   - Cover artwork named: `Cover Art - [Card Title].jpg`
+   - Audio files named: `Track XX - [Title].[format]`, etc.
+   - Chapter/Track images named: `Image X - [Track Title].[format]`, etc. (if available)
+   - Cover artwork named: `Cover Art - [Card Title].[format]`
    - Card information saved as: `[Card Title] - Details.txt`
 4. All files are automatically organized and numbered in the order they appear on the card
 
 *Note: Audio files are downloaded in .mp4 format. For better compatibility with media players and devices, you may want to convert them to .mp3 format. We recommend using [FFmpeg](https://ffmpeg.org/) ([GitHub](https://github.com/FFmpeg/FFmpeg)) or another audio conversion tool of your choice to process the files.*
 
 ### Important Notes
-- Always ensure you're backing up cards you own
-- Keep your backups secure and for personal use only
+- Always ensure you're backing up cards you legally own or have created.
+- Keep your backups secure and for personal use only.
+- For MYO cards, this tool helps you back up the content *you have uploaded* yourself (requires you to be logged in).
 - The extension works on official Yoto card pages matching these patterns:
-  - `https://play.yotoplay.com/*/card/*`
-  - `https://share.yoto.co/*`
-- Make sure to keep your NFC Tools app updated
+  - **Purchased Cards**: `https://play.yotoplay.com/*/card/*` and `https://share.yoto.co/*`
+  - **Your MYO Playlist (Edit Page)**: `https://my.yotoplay.com/card/*/edit`
+- Make sure to keep your NFC Tools app updated if using it for purchased cards.
 
 ## Privacy & Security
 
 We prioritize your privacy:
 - No data collection
-- No external servers
+- No external servers (except for necessary calls to Yoto's API for MYO card data retrieval, proxied through the background script)
 - All processing happens locally in your browser
 - No analytics or tracking
 - Your content remains private and secure
@@ -170,34 +204,33 @@ For detailed information about the project's structure, components, and how they
 ### Project Structure
 ```
 yoto-tools/
-├── icons/              # Extension icons (16, 32, 48, 128px)
-│   ├── 16.png         # Small icon for extension menu
-│   ├── 32.png         # Medium icon for extension menu
-│   ├── 48.png         # Large icon for extension menu
-│   └── 128.png        # Extra large icon for Chrome Web Store
-├── popup.html         # Extension popup interface
+├── icons/            # Extension icons (16, 32, 48, 128px)
+│   ├── 16.png        # Small icon for extension menu
+│   ├── 32.png        # Medium icon for extension menu
+│   ├── 48.png        # Large icon for extension menu
+│   └── 128.png       # Extra large icon for Chrome Web Store
+├── images/           # Documentation images and GIFs
+├── popup.html        # Extension popup interface
 ├── popup.js          # Popup functionality and state synchronization
-├── content.js        # Content script for page interaction and state management
-├── background.js     # Service worker for download handling
+├── content.js        # Content script for page interaction (handles different domains)
+├── background.js     # Service worker for download handling & MYO API requests
 ├── manifest.json     # Extension configuration
 ├── ARCHITECTURE.md   # Detailed technical documentation and component interactions
-├── LICENSE          # MIT License file
+├── LICENSE           # MIT License file
 └── README.md         # User documentation and setup guide
 ```
 
 ### Technical Details
 
 #### State Management
-- The content script (`content.js`) maintains the source of truth for download state
-- The popup queries the current state when opened, ensuring accurate display
-- Progress and error states are synchronized between the page and popup
-- No external storage needed - state is maintained in the page DOM
+- The content script (`content.js`) manages the visual state of the injected UI elements directly.
+- The background script (`background.js`) manages the overall download state (progress, status) using `chrome.storage.local` for persistence.
+- The popup (`popup.js`) queries the state from `chrome.storage.local` via the background script when opened and listens for updates.
 
 #### User Interface
-- Clean, modern design with intuitive controls
-- Real-time progress updates in both popup and page
-- Consistent state display across interface elements
-- Smooth transitions and clear status indicators
+- Clean, modern design injected directly into the page for easy access.
+- Real-time progress updates and button state changes.
+- Consistent state display across interface elements.
 
 ### Building from Source
 1. Clone the repository
@@ -228,13 +261,15 @@ The developers, contributors, and maintainers:
 - Disclaim all liability for any damages or losses resulting from the use of this tool
 - Do not guarantee the tool's compatibility with any specific version of Yoto's services or content
 
-This tool is designed solely for creating personal backups of legally purchased content. Users are solely responsible for ensuring their use of this tool complies with:
+This tool is designed solely for creating personal backups of legally purchased or user-created content. Users are solely responsible for ensuring their use of this tool complies with:
 - Copyright laws and intellectual property rights
 - Terms of service of content providers
 - Licensing agreements
 - Local regulations regarding content backup and usage
 - Data protection and privacy laws
 - Any other applicable laws or regulations
+
+*For MYO cards, this tool facilitates the backup of content uploaded by the user to their own cards.*
 
 The developers do not endorse, encourage, or accept any responsibility for:
 - Unauthorized copying or distribution of copyrighted material
@@ -248,7 +283,7 @@ By using this tool, you acknowledge and agree to these terms and accept full res
 ## Support
 
 If you encounter any issues or have questions:
-1. Check the [Issues](https://github.com/trywait/YotoTools/issues) page (Please update this link!)
+1. Check the [Issues](https://github.com/trywait/YotoTools/issues) page
 2. Create a new issue if needed
 3. Provide detailed information about the problem
 
