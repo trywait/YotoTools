@@ -1,0 +1,23 @@
+{
+  "name": "yototools",
+  "version": "1.0.0",
+  "description": "<div align=\"center\">",
+  "main": "background.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trywait/YotoTools.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/trywait/YotoTools/issues"
+  },
+  "homepage": "https://github.com/trywait/YotoTools#readme",
+  "devDependencies": {
+    "jszip": "^3.10.1"
+  }
+}

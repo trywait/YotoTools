@@ -1,5 +1,3 @@
-// console.log("Yoto Tools: content.js script started execution on", window.location.hostname);
-
 const IS_MY_YOTO_DOMAIN = window.location.hostname === 'my.yotoplay.com';
 const IS_SHARE_DOMAIN = ['play.yotoplay.com', 'share.yoto.co'].includes(window.location.hostname);
 
@@ -26,7 +24,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (IS_MY_YOTO_DOMAIN) {
       downloadCoverArtMyYoto();
     } else if (IS_SHARE_DOMAIN) {
-      // Refactored for async handling and page button state update
       (async () => {
         const button = document.querySelector('.yoto-tools-cover-button');
         const originalText = 'Save Cover';
@@ -47,7 +44,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           sendResponse({ success: false, error: error.message });
         }
       })();
-      return true; // Indicate async response
+      return true;
     }
   } else if (message.action === 'getMediaLinks') {
     if (IS_SHARE_DOMAIN) {
@@ -61,7 +58,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (IS_MY_YOTO_DOMAIN) {
       downloadCardDetailsMyYoto().then(sendResponse);
     } else if (IS_SHARE_DOMAIN) {
-       // Refactored for async handling and page button state update
        (async () => {
         const button = document.querySelector('.yoto-tools-details-button');
         const originalText = 'Save Details';
@@ -82,7 +78,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           sendResponse({ success: false, error: error.message });
         }
       })();
-      return true; // Indicate async response
+      return true;
     }
   } else if (message.action === 'downloadIcons') {
     if (IS_SHARE_DOMAIN) {
@@ -108,7 +104,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 if (!['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension.toLowerCase())) {
                   fileExtension = 'jpg';
                 }
-                const iconFileName = sanitizeFileName(`Image ${imageNumber} - ${track.title}.${fileExtension}`);
+                const iconFileName = sanitizeFileName(`${imageNumber} - ${track.title}.${fileExtension}`);
                 downloadPromises.push(
                   chrome.runtime.sendMessage({
                     type: 'downloadFile',
@@ -148,8 +144,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             sendResponse({ success: true, count: downloadCount });
           } else {
             updateStatus(`Downloaded ${downloadCount} icons with ${errorCount} error(s).`, 'orange');
-            // Optionally: Reset only the failed buttons here if desired, but for now, 
-            // the individual error handlers within the loop already manage this.
             sendResponse({ success: false, error: `${errorCount} download(s) failed`, count: downloadCount });
           }
 
@@ -179,7 +173,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           cardData.content.chapters.forEach(chapter => {
             chapter.tracks.forEach(track => {
               if (track.trackUrl) {
-                const audioFileName = sanitizeFileName(`Track ${String(trackNumber).padStart(2, '0')} - ${track.title}.${track.format || 'aac'}`);
+                // const audioFileName = sanitizeFileName(`Track ${String(trackNumber).padStart(2, '0')} - ${track.title}.${track.format || 'aac'}`);
+                const audioFileName = sanitizeFileName(`${String(trackNumber).padStart(2, '0')} - ${track.title}.${track.format || 'aac'}`); // Removed 'Track ' prefix
                 downloadPromises.push(
                   chrome.runtime.sendMessage({
                     type: 'downloadFile',
@@ -227,6 +222,52 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       })();
       return true; // Indicate async response
     }
+  } else if (message.action === 'updateState') { // Message from background
+    // Update UI based on state received from background (e.g., progress, status)
+    const state = message.state;
+    if (state.status) {
+        updateStatus(state.status, state.statusColor || (state.error ? 'red' : 'var(--text-secondary, #555)'));
+    }
+    if (state.inProgress && typeof state.progress !== 'undefined') {
+        // Determine current and total based on status string? Or pass explicitly?
+        // For now, just show percentage if provided.
+        showProgress(state.progress);
+    } else {
+        hideProgress();
+    }
+
+    // Determine which main button to update based on status message content
+    // This is a bit fragile, might need a better way (e.g., source ID in state)
+    const zipButton = document.getElementById('yoto-tools-download-zip-btn');
+    const backupButton = document.getElementById('yoto-tools-page-backup-button'); // Assuming this ID exists or similar for the original button
+
+    if (state.status && state.status.toLowerCase().includes('zip')) {
+         // Update ZIP button specifically
+         if (zipButton) {
+            if (!state.inProgress) {
+                 if (state.error) {
+                    setButtonError(zipButton, 'Save All (Zip)');
+                 } else {
+                    setButtonSuccess(zipButton, 'Save All (Zip)');
+                 }
+            } else {
+                 setButtonWorking(zipButton, 'Zipping...'); // Use generic text while in progress
+            }
+         }
+    } else if (backupButton) {
+         // Update original backup button (or other relevant buttons if not zip-related)
+          if (!state.inProgress) {
+            if (state.error) {
+                setButtonError(backupButton, 'Save All'); // Adjust original text if needed
+            }
+        }
+    }
+
+
+  } else if (message.action === 'createAndDownloadZip') {
+      // This message is primarily handled by background.js
+      // content.js only *sends* this message via initiateBulkZipDownload
+      console.warn("content.js received createAndDownloadZip, should be handled by background.");
   }
 });
 
@@ -569,14 +610,14 @@ async function bulkDownload() {
         if (track.trackUrl) {
           mediaItems.push({
             url: track.trackUrl,
-            filename: sanitizeFileName(`Track ${trackNumber} - ${track.title}.mp3`)
+            filename: sanitizeFileName(`${String(trackNumber).padStart(2, '0')} - ${track.title}.mp3`) // Removed 'Track ' prefix and added padding
           });
           trackNumber++;
         }
         if (chapter.display?.icon16x16) {
           mediaItems.push({
             url: chapter.display.icon16x16,
-            filename: sanitizeFileName(`Image ${imageNumber} - ${track.title}.jpg`)
+            filename: sanitizeFileName(`${imageNumber} - ${track.title}.jpg`) // Removed 'Image ' prefix
           });
           imageNumber++;
         }
@@ -649,7 +690,7 @@ async function bulkDownload() {
     const bulkButton = document.querySelector('.yoto-tools-bulk-button');
     if (errorCount === 0) {
       updateStatus('Backup Complete!', 'green');
-      if (bulkButton) setButtonSuccess(bulkButton, 'Save Complete Backup');
+      if (bulkButton) setButtonSuccess(bulkButton, 'Save All');
 
       const audioButtons = document.querySelectorAll('.yoto-tools-audio-button');
       audioButtons.forEach(btn => setButtonSuccess(btn, 'Save Audio'));
@@ -662,7 +703,7 @@ async function bulkDownload() {
 
     } else {
       updateStatus(`Backup completed with ${errorCount} error(s). Check console.`, 'orange');
-      if (bulkButton) setButtonError(bulkButton, 'Save Complete Backup');
+      if (bulkButton) setButtonError(bulkButton, 'Save All');
     }
 
   } catch (error) {
@@ -670,7 +711,7 @@ async function bulkDownload() {
     hideProgress();
     updateStatus(`Bulk download failed: ${error.message}`, 'red');
     const bulkButton = document.querySelector('.yoto-tools-bulk-button');
-      if (bulkButton) setButtonError(bulkButton, 'Save Complete Backup');
+      if (bulkButton) setButtonError(bulkButton, 'Save All');
   }
 }
 
@@ -682,13 +723,16 @@ async function downloadCardDetailsMyYoto() {
     if (!cardData) throw new Error("Could not parse My Yoto card data");
 
     const cardTitle = cardData.title;
-    const cardAuthor = "MYO Card";
+    const cardAuthor = "MYO Card"; // Specific to MYO
     const cardDescription = cardData.description || 'No description available';
 
+    // --- Correct logic for MYO track list --- 
     let trackList = 'No tracks available';
     if (cardData.tracks && cardData.tracks.length > 0) {
-      trackList = formatTrackList(cardData.tracks.map(t => t.title));
+      // MYO data has a flat tracks array, so map titles directly
+      trackList = formatTrackList(cardData.tracks.map(t => t.title)); 
     }
+    // ------------------------------------------
 
     const content = `Card Title: ${cardTitle}\nAuthor: ${cardAuthor}\n\nDescription:\n${cardDescription}\n\nTrack List:\n${trackList}`;
     const folderName = sanitizeFileName(cardTitle);
@@ -784,13 +828,21 @@ async function bulkDownloadMyYoto() {
         const cardTitle = cardData.title;
         const cardAuthor = "MYO Card";
         const cardDescription = cardData.description || 'No description available';
-        let trackList = 'No tracks available';
-        if (cardData.tracks && cardData.tracks.length > 0) {
-          trackList = formatTrackList(cardData.tracks.map(t => t.title));
+        // const detailsTrackList = formatTrackList(cardData.content?.chapters || []); // Handles empty/missing chapters
+        
+        // --- Extract flat list of track titles, similar to downloadCardDetails ---
+        let flatTrackTitles = [];
+        if (cardData?.content?.chapters) {
+            flatTrackTitles = cardData.content.chapters.flatMap(chapter => 
+                chapter.tracks.map(track => track.title || 'Untitled Track') // Handle potentially missing titles
+            );
         }
-        const content = `Card Title: ${cardTitle}\nAuthor: ${cardAuthor}\n\nDescription:\n${cardDescription}\n\nTrack List:\n${trackList}`;
+        const detailsTrackList = formatTrackList(flatTrackTitles); // Use the flat list
+        // -------------------------------------------------------------------
+
+        const cardDetailsContent = `Card Title: ${cardTitle}\nAuthor: ${cardAuthor}\n\nDescription:\n${cardDescription}\n\nTrack List:\n${detailsTrackList}`;
         const detailsFileName = sanitizeFileName(`${cardTitle} - Details.txt`);
-        const blob = new Blob([content], { type: 'text/plain' });
+        const blob = new Blob([cardDetailsContent], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         await chrome.runtime.sendMessage({
             type: 'downloadFile',
@@ -812,8 +864,10 @@ async function bulkDownloadMyYoto() {
     // --- Download Track Icons --- 
     const audioDownloadPromises = [];
     if (cardData.tracks) {
+        console.log("[Content-BULK] Looping through tracks for icons/audio:"); // Added log
         for (let i = 0; i < cardData.tracks.length; i++) {
           const track = cardData.tracks[i];
+          console.log(`[Content-BULK] Track ${i + 1} ('${track.title}') format received:`, track.format); // Added log
           if (!track.iconUrl) continue;
           
           try {
@@ -821,7 +875,7 @@ async function bulkDownloadMyYoto() {
              if (!['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension.toLowerCase())) {
                 fileExtension = 'jpg';
              }
-            const iconFileName = sanitizeFileName(`Image ${i + 1} - ${track.title}.${fileExtension}`);
+            const iconFileName = sanitizeFileName(`${i + 1} - ${track.title}.${fileExtension}`); // Removed 'Image ' prefix
     
             await chrome.runtime.sendMessage({
               type: 'downloadFile',
@@ -841,7 +895,8 @@ async function bulkDownloadMyYoto() {
           
           // --- Queue Audio Track Download --- 
           if (track.trackUrl && track.trackUrl.startsWith('https://secure-media.yotoplay.com')) {
-              const audioFileName = sanitizeFileName(`Track ${String(i + 1).padStart(2, '0')} - ${track.title}.${track.format || 'aac'}`);
+              // ***** Non-ZIP Filename (My Yoto page) *****
+              const audioFileName = sanitizeFileName(`${String(i + 1).padStart(2, '0')} - ${track.title}.${track.format || 'mp3'}`);
               audioDownloadPromises.push(
                   chrome.runtime.sendMessage({
                       type: 'downloadFile',
@@ -880,7 +935,7 @@ async function bulkDownloadMyYoto() {
       updateStatus('Bulk download completed successfully!', 'green');
       console.log("Bulk download completed successfully for My Yoto.");
       const bulkButton = document.querySelector('.yoto-tools-bulk-button');
-      if (bulkButton) setButtonSuccess(bulkButton, 'Save Complete Backup');
+      if (bulkButton) setButtonSuccess(bulkButton, 'Save All');
       if (cardData.coverArtUrl) {
           const coverButton = document.querySelector('.yoto-tools-cover-button');
           if (coverButton) setButtonSuccess(coverButton, 'Save Cover');
@@ -893,7 +948,7 @@ async function bulkDownloadMyYoto() {
       updateStatus(`Bulk download completed with ${errorCount} error(s). Check console.`, 'orange');
       console.warn(`Bulk download completed with ${errorCount} error(s) for My Yoto.`);
       const bulkButton = document.querySelector('.yoto-tools-bulk-button');
-      if (bulkButton) setButtonError(bulkButton, 'Save Complete Backup');
+      if (bulkButton) setButtonError(bulkButton, 'Save All');
     }
 
   } catch (error) {
@@ -902,8 +957,200 @@ async function bulkDownloadMyYoto() {
     updateStatus(`Bulk download failed: ${error.message}`, 'red');
     console.error("Bulk download failed for My Yoto:");
     const bulkButton = document.querySelector('.yoto-tools-bulk-button');
-      if (bulkButton) setButtonError(bulkButton, 'Save Complete Backup');
+      if (bulkButton) setButtonError(bulkButton, 'Save All');
   }
+}
+
+// --- NEW HELPER: Gather Share Page Data for ZIP ---
+async function gatherSharePageDataForZip() {
+    const cardData = findAndParseData();
+    if (!cardData || !cardData.title) {
+        console.error('ZIP Prep: Could not find or parse card data for share page.');
+        return null;
+    }
+
+    const cardTitle = cardData.title;
+    const baseFilename = sanitizeFileName(cardTitle);
+
+    // --- Gather URLs and content ---
+    const coverArtUrl = cardData.coverArtUrl || null;
+
+    // Reuse details generation logic (or parts of downloadCardDetails)
+    const detailsTitle = document.querySelector('h1.card-title')?.textContent?.trim() || cardTitle;
+    const detailsAuthor = document.querySelector('div.card-author b')?.textContent?.trim() || 'Unknown Author';
+    const detailsDescription = document.querySelector('div.card-description')?.textContent?.trim() || 'No description available';
+    
+    // --- START: Replicate track list logic from downloadCardDetails --- 
+    let detailsTrackList = 'No tracks available'; // Default value
+    if (cardData?.content?.chapters) {
+        // 1. Flatten the list of titles
+        const flatTrackTitles = cardData.content.chapters.flatMap(chapter => 
+            chapter.tracks.map(track => track.title || 'Untitled Track') // Handle potentially missing titles
+        );
+        // 2. Format the flat list
+        if (flatTrackTitles.length > 0) {
+             detailsTrackList = formatTrackList(flatTrackTitles);
+        }
+    }
+    // --- END: Replicated logic ---
+
+    const cardDetailsContent = `Card Title: ${detailsTitle}\nAuthor: ${detailsAuthor}\n\nDescription:\n${detailsDescription}\n\nTrack List:\n${detailsTrackList}`;
+
+    const iconUrls = [];
+    const audioUrls = [];
+    let trackNumber = 1;
+    let imageNumber = 1;
+
+    cardData.content?.chapters?.forEach(chapter => {
+        const chapterIconUrl = chapter.display?.icon16x16;
+        chapter.tracks.forEach(track => {
+            // Icon (Use chapter icon for every track within it)
+            if (chapterIconUrl) {
+                const iconExtMatch = chapterIconUrl.match(/\.(\w+)(\?|$)/);
+                const iconExt = iconExtMatch ? iconExtMatch[1] : 'png';
+                iconUrls.push({
+                    url: chapterIconUrl,
+                    filename: sanitizeFileName(`${imageNumber} - ${track.title || `Track ${imageNumber}`}.${iconExt}`) // Removed 'Image ' prefix
+                });
+                imageNumber++; // Increment per track if using chapter icon
+            }
+            // Audio
+            if (track.trackUrl) {
+                // *** Align with bulkDownload: Use .mp3 extension directly ***
+                // const audioExt = track.format || 'aac'; 
+                audioUrls.push({
+                    url: track.trackUrl,
+                    filename: sanitizeFileName(`${String(trackNumber).padStart(2, '0')} - ${track.title || `Track ${trackNumber}`}.mp3`) // REMOVED 'Track ' prefix INSIDE sanitize
+                });
+            }
+            trackNumber++; // Increment for each track
+        });
+    });
+
+    // --- Package Data --- 
+    return {
+        cardTitle: cardTitle,
+        baseFilename: baseFilename,
+        coverArt: coverArtUrl ? { url: coverArtUrl, filename: `Cover Art - ${baseFilename}.[ext]` } : null, // Placeholder for ext
+        details: { content: cardDetailsContent, filename: `${baseFilename} - Details.txt` },
+        icons: iconUrls,
+        audio: audioUrls
+    };
+}
+
+// --- NEW HELPER: Gather My Yoto Data for ZIP ---
+async function gatherMyYotoDataForZip() {
+    const cardData = await findAndParseMyYotoData(); // This fetches and parses, including resolved URLs
+    if (!cardData || !cardData.title) {
+        console.error('ZIP Prep: Could not find or parse card data for MYO page.');
+        return null;
+    }
+
+    const cardTitle = cardData.title;
+    const baseFilename = sanitizeFileName(cardTitle);
+
+    // --- Gather URLs and content ---
+    const coverArtUrl = cardData.coverArtUrl || null;
+    // *** Align with bulkDownloadMyYoto: Use map for track list titles ***
+    const trackTitles = (cardData.tracks || []).map((t, index) => t.title || `Track ${index + 1}`);
+    // const cardDetailsContent = `Card Title: ${cardTitle}\n` +
+    //                           `Author: MYO Card\n` +
+    //                           `Description: ${cardData.description || 'N/A'}\n\n` +
+    //                           `Tracks:\n${formatTrackList(trackTitles)}`; // Pass only titles
+
+    // --- Use exact formatting from downloadCardDetailsMyYoto --- 
+    const cardAuthor = "MYO Card"; // MYO specific
+    const cardDescription = cardData.description || 'No description available';
+    let trackList = 'No tracks available';
+    if (trackTitles.length > 0) {
+        trackList = formatTrackList(trackTitles);
+    }
+    const cardDetailsContent = `Card Title: ${cardTitle}\nAuthor: ${cardAuthor}\n\nDescription:\n${cardDescription}\n\nTrack List:\n${trackList}`;
+    // --------------------------------------------------------
+
+    const iconUrls = [];
+    const audioUrls = [];
+    let trackNumber = 1;
+    let imageNumber = 1;
+
+    console.log("[Content-ZIP] Processing tracks for ZIP. Logging track.format values:"); // Added log
+    (cardData.tracks || []).forEach((track, index) => {
+        console.log(`[Content-ZIP] Track ${index + 1} ('${track.title}') format received:`, track.format); // Added log
+        // Icon URL
+        if (track.iconUrl) {
+             const iconExtMatch = track.iconUrl.match(/\.(\w+)(\?|$)/);
+             const iconExt = iconExtMatch ? iconExtMatch[1] : 'png';
+             iconUrls.push({
+                url: track.iconUrl,
+                filename: sanitizeFileName(`${imageNumber} - ${track.title || `Track ${imageNumber}`}.${iconExt}`) // Removed 'Image ' prefix
+            });
+            imageNumber++;
+        }
+        // Audio URL (Should be the signed URL from findAndParseMyYotoData)
+        if (track.trackUrl && track.trackUrl.startsWith('https://secure-media.yotoplay.com')) { 
+             // *** Align with bulkDownloadMyYoto: Use track.format or default to aac ***
+             const audioExt = track.format || 'mp3'; // Changed fallback to mp3
+             audioUrls.push({
+                url: track.trackUrl,
+                filename: sanitizeFileName(`${String(trackNumber).padStart(2, '0')} - ${track.title || `${trackNumber}`}.${audioExt}`) // Restore direct call
+            });
+        } else {
+            console.warn(`ZIP Prep: Skipping audio for track ${trackNumber} - No valid signed URL found.`);
+        }
+        trackNumber++;
+    });
+
+    // --- Package Data --- 
+    return {
+        cardTitle: cardTitle,
+        baseFilename: baseFilename,
+        coverArt: coverArtUrl ? { 
+            url: coverArtUrl, 
+            filename: `Cover Art - ${baseFilename}.[ext]` // Placeholder
+        } : null,
+        details: { content: cardDetailsContent, filename: `${baseFilename} - Details.txt` },
+        icons: iconUrls,
+        audio: audioUrls
+    };
+}
+
+// --- MODIFIED: Initiate ZIP Download (calls new helpers) ---
+async function initiateBulkZipDownload() {
+    const zipButton = document.getElementById('yoto-tools-download-zip-btn');
+    if (!zipButton) return; 
+
+    const originalText = 'Save All (Zip)';
+    setButtonWorking(zipButton, 'Gathering...'); // Change initial text
+    updateStatus('Gathering data for ZIP...');
+    hideProgress(); 
+
+    let zipRequestData = null;
+    try {
+        if (IS_MY_YOTO_DOMAIN) {
+            zipRequestData = await gatherMyYotoDataForZip(); 
+        } else if (IS_SHARE_DOMAIN) {
+            zipRequestData = await gatherSharePageDataForZip(); 
+        }
+
+        if (!zipRequestData) {
+            throw new Error('Failed to gather data for ZIP preparation.');
+        }
+
+        // --- Send gathered data to background ---
+        updateStatus('Sending data to background for zipping...', 'blue');
+        setButtonWorking(zipButton, 'Sending...'); // Update button text
+        chrome.runtime.sendMessage({
+            action: "createAndDownloadZip",
+            data: zipRequestData
+        });
+        console.log("[Content] createAndDownloadZip message sent to background. Awaiting updateState messages.");
+
+    } catch (error) {
+        console.error("Error preparing ZIP download:", error);
+        updateStatus(`Error preparing ZIP: ${error.message}`, 'red');
+        setButtonError(zipButton, originalText);
+        hideProgress();
+    }
 }
 
 
@@ -1033,6 +1280,7 @@ function injectDownloadButtons() {
   const buttonGroupPrimary = document.createElement('div');
   buttonGroupPrimary.style.display = 'flex';
   buttonGroupPrimary.style.justifyContent = 'center';
+  buttonGroupPrimary.style.gap = '10px'; // Added gap between buttons
   buttonContainer.appendChild(buttonGroupPrimary);
 
   // --- Secondary Button Group ---
@@ -1044,9 +1292,15 @@ function injectDownloadButtons() {
   buttonContainer.appendChild(buttonGroupSecondary);
 
   // --- Create Buttons using Helper ---
-  const bulkButton = createMyYotoButton('Save Complete Backup', getDownloadIcon('#fff'), () => bulkDownload());
+  const bulkButton = createMyYotoButton('Save All', getDownloadIcon('#fff'), () => bulkDownload());
   bulkButton.classList.add('yoto-tools-bulk-button');
   buttonGroupPrimary.appendChild(bulkButton);
+
+  // --- NEW: Add ZIP Button ---
+  const zipButton = createMyYotoButton('Save All (Zip)', getDownloadIcon('#fff'), initiateBulkZipDownload);
+  zipButton.id = 'yoto-tools-download-zip-btn'; // Assign unique ID
+  buttonGroupPrimary.appendChild(zipButton); // Add to the primary group as well
+  // --------------------------
 
   const detailsButton = createMyYotoButton('Save Details', getFileTextIcon('#fff', 'M8 4h8v2H8z M8 8h8v2H8z M8 12h5v2H8z'), async () => {
     setButtonWorking(detailsButton, 'Saving...');
@@ -1105,7 +1359,7 @@ function injectDownloadButtons() {
             if (!['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension.toLowerCase())) {
               fileExtension = 'jpg';
             }
-            const iconFileName = sanitizeFileName(`Image ${imageNumber} - ${track.title}.${fileExtension}`);
+            const iconFileName = sanitizeFileName(`${imageNumber} - ${track.title}.${fileExtension}`);
             downloadPromises.push(
               chrome.runtime.sendMessage({
                 type: 'downloadFile',
@@ -1166,7 +1420,7 @@ function injectDownloadButtons() {
       cardData.content.chapters.forEach(chapter => {
         chapter.tracks.forEach(track => {
           if (track.trackUrl) {
-            const audioFileName = sanitizeFileName(`Track ${String(trackNumber).padStart(2, '0')} - ${track.title}.${track.format || 'aac'}`);
+            const audioFileName = sanitizeFileName(`${String(trackNumber).padStart(2, '0')} - ${track.title}.${track.format || 'aac'}`);
             downloadPromises.push(
               chrome.runtime.sendMessage({
                 type: 'downloadFile',
@@ -1239,12 +1493,12 @@ function injectDownloadButtons() {
       trackButtonContainer.style.paddingTop = '5px';
       trackButtonContainer.style.paddingBottom = '5px';
 
-      // --- Save Audio Button ---
+      // --- Save Audio Button --- 
       if (trackData.trackUrl) {
         const audioButton = createMyYotoButton('Save Audio', getAudioIcon('#fff'), async () => { 
           setButtonWorking(audioButton, 'Saving...');
           try {
-            const audioFileName = sanitizeFileName(`Track ${String(index + 1).padStart(2, '0')} - ${trackData.title}.${trackData.format || 'aac'}`);
+            const audioFileName = sanitizeFileName(`${String(index + 1).padStart(2, '0')} - ${trackData.title}.${trackData.format || 'aac'}`);
             const folderName = sanitizeFileName(cardData.title);
             await chrome.runtime.sendMessage({
               type: 'downloadFile',
@@ -1282,12 +1536,12 @@ function injectDownloadButtons() {
             if (!['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension.toLowerCase())) {
               fileExtension = 'jpg';
             }
-            const iconFileName = sanitizeFileName(`Image ${index + 1} - ${trackData.title}.${fileExtension}`);
+            const iconFileName = sanitizeFileName(`${index + 1} - ${trackData.title}.${fileExtension}`);
             const folderName = sanitizeFileName(cardData.title);
             await chrome.runtime.sendMessage({
-              type: 'downloadFile',
-              url: chapterIconUrl,
-              filename: `${folderName}/${iconFileName}`
+                type: 'downloadFile',
+                url: chapterIconUrl,
+                filename: `${folderName}/${iconFileName}`
             });
             setButtonSuccess(iconButton, 'Save Icon');
     } catch (error) {
@@ -1394,10 +1648,16 @@ function injectMyYotoDownloadButtons() {
     buttonGroup.style.flexWrap = 'wrap';
     controlsContainer.appendChild(buttonGroup);
 
-    // --- Bulk Download Button --- 
-    const bulkButton = createMyYotoButton('Save Complete Backup', getDownloadIcon('#fff'), () => bulkDownloadMyYoto());
-    bulkButton.classList.add('yoto-tools-bulk-button'); 
-    buttonGroup.appendChild(bulkButton);
+    // --- Add Main Action Buttons ---
+    const backupButton = createMyYotoButton('Save All', getDownloadIcon('#fff'), bulkDownloadMyYoto);
+    backupButton.classList.add('yoto-tools-bulk-button'); // Add class if needed for styling/selection
+    buttonGroup.appendChild(backupButton);
+
+    // --- NEW: Add ZIP Button ---
+    const zipButton = createMyYotoButton('Save All (Zip)', getDownloadIcon('#fff'), initiateBulkZipDownload);
+    zipButton.id = 'yoto-tools-download-zip-btn'; // Assign unique ID
+    buttonGroup.appendChild(zipButton);
+    // --------------------------
 
     // --- Cover Art Button ---
     if (cardData.coverArtUrl) {
@@ -1458,7 +1718,8 @@ function injectMyYotoDownloadButtons() {
             if (!['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension.toLowerCase())) {
               fileExtension = 'jpg';
             }
-            const iconFileName = sanitizeFileName(`Image ${index + 1} - ${track.title}.${fileExtension}`);
+            // const iconFileName = sanitizeFileName(`Image ${index + 1} - ${track.title}.${fileExtension}`);
+            const iconFileName = sanitizeFileName(`${index + 1} - ${track.title}.${fileExtension}`); // Removed 'Image ' prefix
             downloadPromises.push(
               chrome.runtime.sendMessage({
                 type: 'downloadFile',
@@ -1515,7 +1776,8 @@ function injectMyYotoDownloadButtons() {
 
         currentCardData.tracks.forEach((track, index) => {
           if (track.trackUrl && track.trackUrl.startsWith('https://secure-media.yotoplay.com')) {
-            const audioFileName = sanitizeFileName(`Track ${String(index + 1).padStart(2, '0')} - ${track.title}.${track.format || 'aac'}`);
+            // const audioFileName = sanitizeFileName(`Track ${String(index + 1).padStart(2, '0')} - ${track.title}.${track.format || 'aac'}`);
+            const audioFileName = sanitizeFileName(`${String(index + 1).padStart(2, '0')} - ${track.title}.${track.format || 'mp3'}`); // Removed 'Track ' prefix, ensure mp3 fallback
             downloadPromises.push(
               chrome.runtime.sendMessage({
                 type: 'downloadFile',
@@ -1597,26 +1859,29 @@ function injectMyYotoDownloadButtons() {
 
       // --- Audio Button --- 
       if (track.trackUrl) {
-        const audioButton = createMyYotoButton('Save Audio', getAudioIcon('#fff'), async () => { 
-          setButtonWorking(audioButton, 'Saving...');
-          if (!track.trackUrl || !track.trackUrl.startsWith('https://secure-media.yotoplay.com')) {
-            console.error("No valid signed URL found for this track.");
-            setButtonError(audioButton, 'Save Audio');
-            return;
-          }
-          try {
-            const audioFileName = sanitizeFileName(`Track ${String(index + 1).padStart(2, '0')} - ${track.title}.${track.format || 'aac'}`);
-            const folderName = sanitizeFileName(cardData.title);
-              await chrome.runtime.sendMessage({
-                type: 'downloadFile',
-              url: track.trackUrl,
-              filename: `${folderName}/${audioFileName}`
-            });
-            setButtonSuccess(audioButton, 'Save Audio');
-          } catch (error) {
-            console.error('Error downloading audio track:', error);
-            setButtonError(audioButton, 'Save Audio');
-          }
+        const audioButton = createMyYotoButton('Save Audio', getAudioIcon('#fff'), async () => {
+            setButtonWorking(audioButton, 'Saving...');
+            // It uses 'track' which comes from cardData.tracks[index]
+            // cardData was fetched at the start of injectMyYotoDownloadButtons
+            // Does it re-fetch? No. It uses the initially fetched cardData.
+            if (!track.trackUrl || !track.trackUrl.startsWith('https://secure-media.yotoplay.com')) {
+                console.error("No valid signed URL found for this track.");
+                setButtonError(audioButton, 'Save Audio');
+                return;
+            }
+            try {
+                const audioFileName = sanitizeFileName(`${String(index + 1).padStart(2, '0')} - ${track.title}.${track.format || 'mp3'}`); // Restore direct call
+                const folderName = sanitizeFileName(cardData.title);
+                await chrome.runtime.sendMessage({
+                    type: 'downloadFile',
+                    url: track.trackUrl,
+                    filename: `${folderName}/${audioFileName}`
+                });
+                setButtonSuccess(audioButton, 'Save Audio');
+            } catch (error) {
+                console.error('Error downloading audio track:', error);
+                setButtonError(audioButton, 'Save Audio');
+            }
         }, 'small');
         audioButton.classList.add('yoto-tools-audio-button');
         audioButton.dataset.trackIndex = index;
@@ -1632,17 +1897,18 @@ function injectMyYotoDownloadButtons() {
             if (!['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension.toLowerCase())) {
               fileExtension = 'jpg';
             }
-            const iconFileName = sanitizeFileName(`Image ${index + 1} - ${track.title}.${fileExtension}`);
+            // const iconFileName = sanitizeFileName(`Image ${index + 1} - ${track.title}.${fileExtension}`);
+            const iconFileName = sanitizeFileName(`${index + 1} - ${track.title}.${fileExtension}`); // Removed 'Image ' prefix
             const folderName = sanitizeFileName(cardData.title);
               await chrome.runtime.sendMessage({
-                type: 'downloadFile',
-              url: track.iconUrl,
-              filename: `${folderName}/${iconFileName}`
+                  type: 'downloadFile',
+                  url: track.iconUrl,
+                  filename: `${folderName}/${iconFileName}`
               });
             setButtonSuccess(iconButton, 'Save Icon');
             } catch (error) {
               console.error('Error downloading icon:', error);
-            setButtonError(iconButton, 'Save Icon');
+              setButtonError(iconButton, 'Save Icon');
           }
         }, 'small');
         iconButton.classList.add('yoto-tools-icon-button');
@@ -1732,8 +1998,33 @@ function sanitizeFileName(name) {
 
 // Function to format track list with numbers
 function formatTrackList(tracks) {
+  // Added check if tracks is an array of strings (titles) or objects
   if (tracks.length === 0) return 'No tracks available';
-  return tracks.map((track, index) => `${index + 1}. ${track}`).join('\n');
+  
+  if (typeof tracks[0] === 'string') {
+      // Assume array of titles
+      return tracks.map((title, index) => `${index + 1}. ${title || 'Untitled Track'}`).join('\n');
+  } else if (typeof tracks[0] === 'object' && tracks[0] !== null && tracks[0].tracks) {
+       // Share page structure (array of chapters with tracks)
+      let trackListText = '';
+      let trackNumGlobal = 1;
+      tracks.forEach((chapter, chapterIndex) => {
+          trackListText += `\nChapter ${chapterIndex + 1}: ${chapter.title || 'Untitled Chapter'}\n`;
+          chapter.tracks.forEach(track => {
+              trackListText += `  ${String(trackNumGlobal).padStart(2, '0')}: ${track.title || 'Untitled Track'}\n`;
+              trackNumGlobal++;
+          });
+      });
+      return trackListText.trim();
+  } else if (typeof tracks[0] === 'object' && tracks[0] !== null) {
+       // Assume MYO structure (flat array of track objects) - used by original formatTrackList call, now map is used before calling
+       // This branch might be less used now but kept for safety
+       return tracks.map((track, index) => `${String(index + 1).padStart(2, '0')}: ${track.title || 'Untitled Track'}`).join('\n');
+  } else {
+       // Fallback for unexpected data
+       console.warn("formatTrackList received unexpected data type:", tracks);
+       return 'Could not format track list.';
+  }
 }
 
 // --- Global State Update Functions ---
