@@ -4,7 +4,7 @@
   
   <h1 style="margin: 0.5em 0;">Yoto Tools</h1>
 
-  ![Version](https://img.shields.io/badge/version-2.0.0-blue?style=for-the-badge&labelColor=darkblue)
+  ![Version](https://img.shields.io/badge/version-2.1.0-blue?style=for-the-badge&labelColor=darkblue)
   [![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)](https://github.com/trywait/YotoTools/blob/main/LICENSE)
 
   A Chrome extension for creating personal backups of your legally purchased and MYO Yoto card content.
@@ -54,8 +54,9 @@ This extension is designed for:
 
 [Read More Here](#legal-disclaimer)
 
-## ✨ What's New in Version 2.0 ✨
+## ✨ What's New in Version 2.1 ✨
 
+- **Zip Download Option**: Added a "Save All (Zip)" button to download all card content (audio, icons, cover, details) as a single compressed ZIP file.
 - **MYO Card Support**: You can now backup your own content directly from the "Edit your playlist" MYO page (`my.yotoplay.com/card/*/edit`). This includes downloading your uploaded audio tracks, icons, cover art, and details.
 - **Unified UI**: The user interface has been updated for consistency across both share pages and MYO edit pages. Buttons are injected directly into the page for easy access.
 - **Improved Stability**: Refactored background processes for API communication and download management. Uses `chrome.storage.local` for more reliable state persistence.
@@ -68,6 +69,7 @@ This extension is designed for:
 - 🎨 **Simple UI**: Clean and simple design with synchronized state and progress display, injected directly into the page so you don't have to activate the extension.
 - 🔐 **Privacy-Focused**: Works entirely client-side with minimal permissions
 - 📼 **MYO Backup**: Backup your own uploaded content from the *Edit your playlist* page (`my.yotoplay.com/card/*/edit`).
+- 📦 **Zip Option**: Download all card content as a single, convenient ZIP file.
 
 ## Prerequisites
 
@@ -125,10 +127,11 @@ Before using this extension, you'll need:
    *Note: Do not refresh this page as it will lead to a 404 error. If this happens, simply return to Step 1.4 and re-enter the original `yoto.io` URL. Yoto Originals cannot be backed up.*
    
    <div align="center">
-     <img src="images/YotoTools_allsave.gif" alt="Yoto Tools Save Complete Backup Demo" width="500"/>
+     <img src="images/YotoTools_share_demo.gif" alt="Yoto Tools Share Page Demo" width="500"/>
    </div>
    
-   - **Save Complete Backup**: Downloads all card content into an organized folder.
+   - **Save All**: Downloads all card content into an organized folder named after the card.
+   - **Save All (Zip)**: Downloads all card content as a single `.zip` file named after the card.
    - **Save Cover**: Downloads the card's cover art.
    - **Save Details**: Saves a text file with the card's information— Title, description, author, and track list.
    - **Save Icons**: Downloads all available track icons.
@@ -147,7 +150,7 @@ Before using this extension, you'll need:
 ### Step 1: Select an MYO card from the [My playlists](https://my.yotoplay.com/my-cards) page
 
 <div align="center">
-  <img src="images/MYOpreviewAll.gif" alt="Yoto Tools MYO Backup" width="600"/>
+  <img src="images/YotoTools_myo_demo.gif" alt="Yoto Tools MYO Backup" width="600"/>
   <br>
   <em>Backup your MYO content</em>
 </div>
@@ -155,7 +158,8 @@ Before using this extension, you'll need:
 ### Step 2: Backup your content
 1. Wait for the page to fully load.
 
-   - **Save Complete Backup**: Downloads all card content into an organized folder.
+   - **Save All**: Downloads all card content into an organized folder named after the card.
+   - **Save All (Zip)**: Downloads all card content as a single `.zip` file named after the card.
    - **Save Cover**: Downloads the card's cover art.
    - **Save Details**: Saves a text file with the card's information— Title, description, author, and track list.
    - **Save Icons**: Downloads all available track icons.
@@ -164,13 +168,13 @@ Before using this extension, you'll need:
    
 ### Locate Your Backups
 1. By default, files are saved to your computer's Downloads folder
-2. A new folder will be created named after your card (e.g., "Jack and the Beanstalk")
-3. Inside the folder, you'll find:
-   - Audio files named: `Track XX - [Title].[format]`, etc.
-   - Chapter/Track images named: `Image X - [Track Title].[format]`, etc. (if available)
+2. If using "Save All", a new folder will be created named after your card (e.g., "Jack and the Beanstalk"). Inside the folder, you'll find:
+   - Audio files named: `XX - [Title].[format]`, etc.
+   - Track images named: `X - [Track Title].[format]`, etc. (if available)
    - Cover artwork named: `Cover Art - [Card Title].[format]`
    - Card information saved as: `[Card Title] - Details.txt`
-4. All files are automatically organized and numbered in the order they appear on the card
+3. If using "Save All (Zip)", a single `.zip` file named after your card will be downloaded. Inside the zip file, the content will be organized similarly.
+4. Filenames are automatically generated based on track number and title.
 
 *Note: Audio files are downloaded in .mp4 format. For better compatibility with media players and devices, you may want to convert them to .mp3 format. We recommend using [FFmpeg](https://ffmpeg.org/) ([GitHub](https://github.com/FFmpeg/FFmpeg)) or another audio conversion tool of your choice to process the files.*
 
@@ -209,6 +213,7 @@ yoto-tools/
 │   ├── 32.png        # Medium icon for extension menu
 │   ├── 48.png        # Large icon for extension menu
 │   └── 128.png       # Extra large icon for Chrome Web Store
+├── jszip.min.js      # JSZip library for ZIP creation
 ├── images/           # Documentation images and GIFs
 ├── popup.html        # Extension popup interface
 ├── popup.js          # Popup functionality and state synchronization

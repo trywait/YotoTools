@@ -278,38 +278,74 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // --- SHARE DOMAIN (play.yotoplay.com, share.yoto.co) --- 
 
 function findAndParseData() {
-  // First, find the script element by its ID
   const scriptElement = document.getElementById('__NEXT_DATA__');
 
-  // Check if the element exists
-  if (!scriptElement || !scriptElement.textContent) {
-    console.error('Script element not found or empty');
+  if (!scriptElement) {
+    console.error('[YotoTools] Could not find the __NEXT_DATA__ script element.');
+    return null;
+  }
+  if (!scriptElement.textContent) {
+      console.error('[YotoTools] The __NEXT_DATA__ script element has no text content.');
     return null;
   }
 
   try {
-    // Parse the JSON content of the script element
     const jsonData = JSON.parse(scriptElement.textContent);
 
-    // Get the card title from the page
-    const titleElement = document.querySelector('h1.card-title');
-    const title = titleElement ? titleElement.textContent : null;
+    // Check for the expected path to card data
+    const cardData = jsonData?.props?.pageProps?.card;
 
-    // Get the cover art from the page
-    const coverArtImg = document.querySelector('.card img');
-    const coverArtUrl = coverArtImg ? coverArtImg.src : null;
-
-    // Navigate to the specific path where trackUrl, title, and icon16x16 are located
-    if (jsonData?.props?.pageProps?.card?.content?.chapters) {
-      const cardData = jsonData.props.pageProps.card;
-      return {
-        ...cardData,
-        title: title || cardData.title, // Use page title if available, fall back to JSON title
-        coverArtUrl
-      };
+    if (!cardData) {
+      console.error('[YotoTools] Could not find card data at jsonData.props.pageProps.card');
+      console.log('[YotoTools] jsonData structure:', jsonData); // Log the structure for debugging
+      return null;
     }
+
+    // Check if essential content exists (like chapters)
+    if (!cardData?.content?.chapters) {
+        console.warn('[YotoTools] Card data found, but missing content.chapters structure.');
+        // Potentially return partial data or null depending on requirements
+        // For now, let's be strict and require chapters for downloads.
+        return null; 
+    }
+
+    // --- Extract data primarily from JSON ---
+    let title = cardData.title || 'Untitled Card';
+    // Look for cover art within the JSON structure first
+    let coverArtUrl = cardData.metadata?.cover?.imageL || cardData.metadata?.cover?.imageS || null;
+
+
+    // --- Fallback to DOM elements ONLY if JSON data is missing ---
+    if (!title || title === 'Untitled Card') {
+    const titleElement = document.querySelector('h1.card-title');
+        if (titleElement) {
+            console.log('[YotoTools] Using title from DOM h1.card-title');
+            title = titleElement.textContent;
+        }
+    }
+
+    if (!coverArtUrl) {
+    const coverArtImg = document.querySelector('.card img');
+        if (coverArtImg) {
+             console.log('[YotoTools] Using cover art from DOM .card img');
+             coverArtUrl = coverArtImg.src;
+        }
+    }
+
+    console.log('[YotoTools] Successfully parsed card data for share domain.');
+    // Return the essential data needed, combining JSON and potential DOM fallbacks
+      return {
+      title: title,
+      coverArtUrl: coverArtUrl,
+      content: cardData.content, // Keep the content structure
+      // Include other necessary fields if needed later, e.g., description
+      description: cardData.metadata?.description || '' 
+      // Add other relevant fields from cardData if required by downstream functions
+    };
+
   } catch (error) {
-    console.error('Error parsing JSON data:', error);
+    console.error('[YotoTools] Error parsing __NEXT_DATA__ JSON:', error);
+    console.error('[YotoTools] __NEXT_DATA__ content was:', scriptElement.textContent); // Log raw content on error
   }
 
   return null;
@@ -610,14 +646,14 @@ async function bulkDownload() {
         if (track.trackUrl) {
           mediaItems.push({
             url: track.trackUrl,
-            filename: sanitizeFileName(`${String(trackNumber).padStart(2, '0')} - ${track.title}.mp3`) // Removed 'Track ' prefix and added padding
+            filename: sanitizeFileName(`${String(trackNumber).padStart(2, '0')} - ${track.title}.mp3`)
           });
           trackNumber++;
         }
         if (chapter.display?.icon16x16) {
           mediaItems.push({
             url: chapter.display.icon16x16,
-            filename: sanitizeFileName(`${imageNumber} - ${track.title}.jpg`) // Removed 'Image ' prefix
+            filename: sanitizeFileName(`${imageNumber} - ${track.title}.jpg`)
           });
           imageNumber++;
         }
@@ -828,37 +864,32 @@ async function bulkDownloadMyYoto() {
         const cardTitle = cardData.title;
         const cardAuthor = "MYO Card";
         const cardDescription = cardData.description || 'No description available';
-        // const detailsTrackList = formatTrackList(cardData.content?.chapters || []); // Handles empty/missing chapters
         
-        // --- Extract flat list of track titles, similar to downloadCardDetails ---
-        let flatTrackTitles = [];
-        if (cardData?.content?.chapters) {
-            flatTrackTitles = cardData.content.chapters.flatMap(chapter => 
-                chapter.tracks.map(track => track.title || 'Untitled Track') // Handle potentially missing titles
-            );
+        // --- ADDED: Extract and format track list titles --- 
+        let detailsTrackList = 'No tracks available'; // Default value
+        if (cardData?.tracks && cardData.tracks.length > 0) {
+            // Extract titles from the flat tracks array for MYO
+            const trackTitles = cardData.tracks.map(t => t.title || 'Untitled Track');
+            detailsTrackList = formatTrackList(trackTitles); // Format the list
         }
-        const detailsTrackList = formatTrackList(flatTrackTitles); // Use the flat list
-        // -------------------------------------------------------------------
+        // ----------------------------------------------------
 
-        const cardDetailsContent = `Card Title: ${cardTitle}\nAuthor: ${cardAuthor}\n\nDescription:\n${cardDescription}\n\nTrack List:\n${detailsTrackList}`;
+        const cardDetailsContent = `Card Title: ${cardTitle}\nAuthor: ${cardAuthor}\n\nDescription:\n${cardDescription}\n\nTrack List:\n${detailsTrackList}`; // Use the formatted list
+        
         const detailsFileName = sanitizeFileName(`${cardTitle} - Details.txt`);
         const blob = new Blob([cardDetailsContent], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         await chrome.runtime.sendMessage({
-            type: 'downloadFile',
-            url: url,
-            filename: `${folderName}/${detailsFileName}`
+          type: 'downloadFile',
+          url: url,
+          filename: `${folderName}/${detailsFileName}`
         });
-        URL.revokeObjectURL(url);
+        URL.revokeObjectURL(url); // Clean up object URL
         downloadedCount++;
         updateProgress(downloadedCount);
-        const detailsButton = document.querySelector('.yoto-tools-details-button');
-        if (detailsButton) setButtonSuccess(detailsButton, 'Save Details');
     } catch(err) {
-        console.error("Error downloading card details during bulk download:", err);
-        errorCount++;
-        const detailsButton = document.querySelector('.yoto-tools-details-button');
-        if (detailsButton) setButtonError(detailsButton, 'Save Details');
+      console.error('Error downloading card details during bulk download:', err);
+      errorCount++;
     }
 
     // --- Download Track Icons --- 
@@ -1599,7 +1630,7 @@ function injectMyYotoDownloadButtons() {
       border: 1px solid #d1dce5;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       position: relative;
-      z-index: 9999;
+      z-index: 0;
     `;
 
     // --- Title ---

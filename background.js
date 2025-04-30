@@ -245,6 +245,40 @@ function sendUpdateState(state, tabId = null) {
     }
 }
 
+// Helper function to map MIME type to file extension (Defaults to MP3 for unknown audio)
+function getExtensionFromMimeType(mimeType) {
+    if (!mimeType) {
+        console.warn("getExtensionFromMimeType: No MIME type provided, defaulting to 'bin'."); 
+        return 'bin'; // Keep 'bin' if no type is passed at all
+    }
+    // Normalize: lowercase and remove parameters (like ; charset=utf-8)
+    const normalizedMime = mimeType.toLowerCase().split(';')[0].trim();
+
+    const mimeMap = {
+        'image/png': 'png',
+        'image/jpeg': 'jpg',
+        'image/jpg': 'jpg',
+        'image/gif': 'gif',
+        'image/webp': 'webp',
+        'image/svg+xml': 'svg',
+        'audio/mpeg': 'mp3',
+        'audio/mp4': 'mp4',
+        'audio/aac': 'aac',
+        'audio/ogg': 'ogg',
+        'audio/wav': 'wav',
+        'application/octet-stream': 'mp3' // Treat generic binary as mp3 in this context
+        // Add more mappings as needed
+    };
+
+    const extension = mimeMap[normalizedMime];
+    if (!extension) {
+        // *** CHANGED DEFAULT HERE ***
+        console.warn(`getExtensionFromMimeType: Unknown MIME type "${normalizedMime}", defaulting to 'mp3'. Original: "${mimeType}"`);
+        return 'mp3'; // Default to mp3 for unknown types when the function is called
+    }
+    return extension;
+}
+
 // Helper function to fetch assets as blobs
 async function fetchAsset(url) {
     // Use CORS proxy if necessary, or handle potential CORS errors
@@ -302,25 +336,46 @@ async function handleCreateAndDownloadZip(data, tabId) {
             sendProgress(`Added ${details.filename}`, currentProgress);
         }
 
-        // 2. Fetch and Add Cover Art
-        if (coverArt?.url) {
-            // sendProgress(`Fetching Cover Art...`, (filesProcessed / totalFiles) * fileFetchingProgressScale); // Show progress *before* fetch
-            try {
-                const coverBlob = await fetchAsset(coverArt.url);
-                const coverExtMatch = coverArt.url.match(/\.(\w+)(\?|$)/);
-                const coverExt = coverExtMatch ? coverExtMatch[1] : 'jpg'; 
-                const finalCoverFilename = coverArt.filename.replace('[ext]', coverExt);
-                zip.file(finalCoverFilename, coverBlob);
-                filesProcessed++;
-                const currentProgress = (filesProcessed / totalFiles) * fileFetchingProgressScale;
-                sendProgress(`Added Cover Art`, currentProgress);
-            } catch (fetchError) {
-                console.error(`Failed to fetch/add Cover Art (${coverArt.url}):`, fetchError);
-                // Update progress even on error, but don't increment filesProcessed
-                const currentProgress = (filesProcessed / totalFiles) * fileFetchingProgressScale;
-                sendProgress(`Error fetching Cover Art`, currentProgress);
-            }
-        }
+            // 2. Fetch and Add Cover Art (Forcing PNG)
+            if (coverArt?.url) {
+              try {
+                 console.log(`[ZIP] Fetching cover art from: ${coverArt.url}`);
+                 // Simpler fetch, we don't need the response object anymore for content-type
+                 const response = await fetch(coverArt.url);
+                  if (!response.ok) {
+                      throw new Error(`Failed to fetch cover art (${coverArt.url}): ${response.status} ${response.statusText}`);
+                  }
+                 const coverBlob = await response.blob();
+                 const coverExt = 'png'; // FORCE PNG EXTENSION
+                 console.log(`[ZIP] Cover art extension FORCED to: ${coverExt}`); // Log forced extension
+
+                 // Ensure filename template exists before replacing
+                 let finalCoverFilename = 'cover.' + coverExt; // Default filename structure
+                 if (coverArt.filename && coverArt.filename.includes('[ext]')) {
+                      finalCoverFilename = coverArt.filename.replace('[ext]', coverExt);
+                 } else if (coverArt.filename) {
+                     // Use the filename provided, but ensure it ends with the forced extension
+                     console.warn(`[ZIP] Cover art filename "${coverArt.filename}" may not contain [ext] placeholder. Ensuring .png extension.`);
+                     const nameWithoutExt = coverArt.filename.replace(/\.[^/.]+$/, ""); // Remove existing extension just in case
+                     finalCoverFilename = `${nameWithoutExt}.${coverExt}`;
+                 } else {
+                      // Fallback if coverArt.filename is somehow missing
+                      finalCoverFilename = `${baseFilename}_cover.${coverExt}`;
+                 }
+                 console.log(`[ZIP] Final cover art filename for ZIP: ${finalCoverFilename}`);
+
+                 zip.file(finalCoverFilename, coverBlob);
+                 filesProcessed++;
+                 const currentProgress = (filesProcessed / totalFiles) * fileFetchingProgressScale;
+                 sendProgress(`Added Cover Art`, currentProgress);
+             } catch (fetchError) {
+                 console.error(`[ZIP] Failed to fetch/add Cover Art (${coverArt.url}):`, fetchError);
+                 const currentProgress = (filesProcessed / totalFiles) * fileFetchingProgressScale;
+                 sendProgress(`Error fetching Cover Art`, currentProgress);
+             }
+         } else {
+              console.warn("[ZIP] No coverArt.url provided to handleCreateAndDownloadZip, skipping cover art.");
+         }
 
         // 3. Fetch and Add Icons
         if (icons) {
@@ -350,13 +405,30 @@ async function handleCreateAndDownloadZip(data, tabId) {
                 const track = audio[i];
                  if (track?.url) {
                     const audioFilenameForLog = track.filename || 'unknown_audio_filename';
-                    // sendProgress(`Fetching Audio ${i + 1}...`, (filesProcessed / totalFiles) * fileFetchingProgressScale);
                     try {
-                        const audioBlob = await fetchAsset(track.url);
-                        zip.file(track.filename, audioBlob);
-                        filesProcessed++;
-                        const currentProgress = (filesProcessed / totalFiles) * fileFetchingProgressScale;
-                        sendProgress(`Added Audio ${i + 1}`, currentProgress);
+                        const response = await fetch(track.url);
+                         if (!response.ok) {
+                             throw new Error(`Failed to fetch audio ${i+1} (${track.url}): ${response.status} ${response.statusText}`);
+                         }
+                         const audioContentType = response.headers.get('Content-Type');
+                         const audioBlob = await response.blob();
+                         // *** Now directly uses the helper function's default ***
+                         const audioExt = getExtensionFromMimeType(audioContentType); 
+
+                         // Construct filename with correct extension
+                         let finalAudioFilename = `${String(i+1).padStart(2, '0')}_track.${audioExt}`; // Default structure
+                         if (track.filename && track.filename.includes('[ext]')) {
+                             finalAudioFilename = track.filename.replace('[ext]', audioExt);
+                         } else if (track.filename) {
+                              console.warn(`[ZIP] Audio filename "${track.filename}" does not contain [ext] placeholder. Appending determined extension.`);
+                              const nameWithoutExt = track.filename.replace(/\.[^/.]+$/, "");
+                              finalAudioFilename = `${nameWithoutExt}.${audioExt}`;
+                         }
+
+                         zip.file(finalAudioFilename, audioBlob);
+                         filesProcessed++;
+                         const currentProgress = (filesProcessed / totalFiles) * fileFetchingProgressScale;
+                         sendProgress(`Added Audio ${i + 1}`, currentProgress);
                     } catch (fetchError) {
                          console.error(`ZIP: Failed to fetch/add Audio ${i + 1} (${track.url}, Filename: ${audioFilenameForLog}):`, fetchError);
                          const currentProgress = (filesProcessed / totalFiles) * fileFetchingProgressScale;

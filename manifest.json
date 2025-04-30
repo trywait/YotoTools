@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Yoto Tools",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "View and selectively download a media backupfrom a Yoto card.",
   "permissions": [
     "downloads",
